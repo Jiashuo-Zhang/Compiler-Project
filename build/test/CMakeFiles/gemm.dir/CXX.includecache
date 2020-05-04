@@ -1,0 +1,24 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/Users/zhangjiashuo/Desktop/CompilerProject-2020Spring-Part1/test/gemm.cc
+string
+-
+iostream
+-
+IR.h
+/Users/zhangjiashuo/Desktop/CompilerProject-2020Spring-Part1/test/IR.h
+IRMutator.h
+/Users/zhangjiashuo/Desktop/CompilerProject-2020Spring-Part1/test/IRMutator.h
+IRVisitor.h
+/Users/zhangjiashuo/Desktop/CompilerProject-2020Spring-Part1/test/IRVisitor.h
+IRPrinter.h
+/Users/zhangjiashuo/Desktop/CompilerProject-2020Spring-Part1/test/IRPrinter.h
+type.h
+/Users/zhangjiashuo/Desktop/CompilerProject-2020Spring-Part1/test/type.h
+

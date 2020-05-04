@@ -1,0 +1,16 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/Users/zhangjiashuo/Desktop/CompilerProject-2020Spring-Part1/project1/solution/example_solution.cc
+iostream
+-
+fstream
+-
+string
+-
+

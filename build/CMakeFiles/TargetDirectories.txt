@@ -1,0 +1,14 @@
+/Users/zhangjiashuo/Desktop/CompilerProject-2020Spring-Part1/build/CMakeFiles/rebuild_cache.dir
+/Users/zhangjiashuo/Desktop/CompilerProject-2020Spring-Part1/build/CMakeFiles/edit_cache.dir
+/Users/zhangjiashuo/Desktop/CompilerProject-2020Spring-Part1/build/CMakeFiles/boost.dir
+/Users/zhangjiashuo/Desktop/CompilerProject-2020Spring-Part1/build/test/CMakeFiles/rebuild_cache.dir
+/Users/zhangjiashuo/Desktop/CompilerProject-2020Spring-Part1/build/test/CMakeFiles/edit_cache.dir
+/Users/zhangjiashuo/Desktop/CompilerProject-2020Spring-Part1/build/test/CMakeFiles/gemm.dir
+/Users/zhangjiashuo/Desktop/CompilerProject-2020Spring-Part1/build/test/CMakeFiles/conv2d.dir
+/Users/zhangjiashuo/Desktop/CompilerProject-2020Spring-Part1/build/project1/CMakeFiles/rebuild_cache.dir
+/Users/zhangjiashuo/Desktop/CompilerProject-2020Spring-Part1/build/project1/CMakeFiles/edit_cache.dir
+/Users/zhangjiashuo/Desktop/CompilerProject-2020Spring-Part1/build/project1/CMakeFiles/clean_run.dir
+/Users/zhangjiashuo/Desktop/CompilerProject-2020Spring-Part1/build/project1/CMakeFiles/cleanf.dir
+/Users/zhangjiashuo/Desktop/CompilerProject-2020Spring-Part1/build/project1/CMakeFiles/solution_run.dir
+/Users/zhangjiashuo/Desktop/CompilerProject-2020Spring-Part1/build/project1/CMakeFiles/solution.dir
+/Users/zhangjiashuo/Desktop/CompilerProject-2020Spring-Part1/build/project1/CMakeFiles/test1.dir
