@@ -12,10 +12,10 @@
 class  kernelParser : public antlr4::Parser {
 public:
   enum {
-    P = 1, P1 = 2, S = 3, LHS = 4, RHS1 = 5, RHS = 6, RHS2 = 7, TRef = 8, 
-    SRef = 9, CList = 10, CList1 = 11, AList = 12, AList1 = 13, IdExpr1 = 14, 
-    IdExpr = 15, IdExpr2 = 16, Const = 17, IntV = 18, FloatV = 19, Id = 20, 
-    WS = 21
+    P = 1, S = 2, LHS = 3, SimpleRHS = 4, RHS = 5, RHS2 = 6, TRef = 7, SRef = 8, 
+    CList = 9, CListNode = 10, AList = 11, AListNode = 12, SimpleIdExpr = 13, 
+    IdExpr = 14, IdExpr2 = 15, Const = 16, IntV = 17, FloatV = 18, Id = 19, 
+    WS = 20
   };
 
   enum {

@@ -1,64 +1,63 @@
 grammar kernel;
 
 prog: P EOF
+|EOF
 ;
 
-P : S P1
-;
-P1 
-: S P1
-| 
+P : [S]+
 ;
 
 S : LHS '=' RHS 
 ;
 LHS : TRef
 ;
-RHS1 : '(' RHS ')'
+
+SimpleRHS : '(' RHS ')'
         | TRef
         | SRef
         | Const
 ;
 
-RHS : RHS1 RHS2
+RHS : SimpleRHS [RHS2]*
 ;
-RHS2 : '+' RHS2
-       	| '*' RHS2
-        | '-' RHS2
-        | '/' RHS2
-        | '%' RHS2
-        | '/' '/' RHS2
-        | RHS1
-        |
+RHS2 : '+' SimpleRHS
+       	| '*' SimpleRHS
+        | '-' SimpleRHS
+        | '/' SimpleRHS
+        | '%' SimpleRHS
+        | '/' '/' SimpleRHS
 ;
+
 TRef : Id '<' CList '>' '[' AList ']'
 ;
 SRef : Id '<' CList '>'
 ;
 
-CList : IntV CList1
-;
-CList1 : ',' IntV CList1
-| 
+CList : IntV [CListNode]*
 ;
 
-AList : IdExpr AList1
-;
-AList1 : ',' IdExpr AList1
-| 
+CListNode : ',' IntV
 ;
 
-IdExpr1 : Id
+AList : IdExpr [AListNode]*
+;
+AListNode: ',' IdExpr
+;
+
+
+SimpleIdExpr : Id
 |'(' IdExpr ')'
 ;
-IdExpr : IdExpr1 IdExpr2
+
+IdExpr : SimpleIdExpr [IdExpr2]+
 ;
-IdExpr2 : '+' IdExpr IdExpr2
-| '+' IntV IdExpr2
-| '*' IntV IdExpr2
-| '/' '/' IntV IdExpr2
-| '%' IntV IdExpr2
+IdExpr2 : '+' SimpleIdExpr
+| '+' IntV
+| '*' IntV
+| '/' '/' IntV
+| '%' IntV
 ;
+
 Const : FloatV 
 | IntV
 ;
@@ -67,7 +66,7 @@ IntV : [0-9]+
 ;
 FloatV: [0-9]+ ('.')* [0-9]*
 ;
-Id :[a-z,A-Z]+
+Id :[a-zA-Z]+
 ;
 
 
