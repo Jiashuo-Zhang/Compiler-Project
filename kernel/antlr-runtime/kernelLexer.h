@@ -12,10 +12,9 @@
 class  kernelLexer : public antlr4::Lexer {
 public:
   enum {
-    P = 1, S = 2, LHS = 3, SimpleRHS = 4, RHS = 5, RHS2 = 6, TRef = 7, SRef = 8, 
-    CList = 9, CListNode = 10, AList = 11, AListNode = 12, SimpleIdExpr = 13, 
-    IdExpr = 14, IdExpr2 = 15, Const = 16, IntV = 17, FloatV = 18, Id = 19, 
-    WS = 20
+    T__0 = 1, T__1 = 2, T__2 = 3, T__3 = 4, T__4 = 5, T__5 = 6, T__6 = 7, 
+    T__7 = 8, IntV = 9, FloatV = 10, Id = 11, PLUS = 12, MUL = 13, DIV = 14, 
+    MOD = 15, MINUS = 16, WS = 17
   };
 
   kernelLexer(antlr4::CharStream *input);

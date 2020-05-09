@@ -1,74 +1,89 @@
 grammar kernel;
 
-prog: P EOF
-|EOF
+prog: p EOF # Start
+|EOF # End
 ;
 
-P : [S]+
+p : s p1 # VisitP
+;
+p1 : s p1 # VisitP1
+| # P1Nothing
 ;
 
-S : LHS '=' RHS 
-;
-LHS : TRef
+s : lhs '=' rhs   # VisitS
 ;
 
-SimpleRHS : '(' RHS ')'
-        | TRef
-        | SRef
-        | Const
+lhs : tRef  # LHS
 ;
 
-RHS : SimpleRHS [RHS2]*
-;
-RHS2 : '+' SimpleRHS
-       	| '*' SimpleRHS
-        | '-' SimpleRHS
-        | '/' SimpleRHS
-        | '%' SimpleRHS
-        | '/' '/' SimpleRHS
+simpleRHS 
+: '(' rhs ')' # OneRHS
+| tRef # OnetRef
+| sRef # OnesRef
+| constNum # OneconstNum
 ;
 
-TRef : Id '<' CList '>' '[' AList ']'
+rhs : simpleRHS rhs2 # RHS
 ;
-SRef : Id '<' CList '>'
-;
-
-CList : IntV [CListNode]*
-;
-
-CListNode : ',' IntV
-;
-
-AList : IdExpr [AListNode]*
-;
-AListNode: ',' IdExpr
+rhs2 : PLUS simpleRHS rhs2 # plusRhs2
+       	| MUL simpleRHS rhs2 # mulRhs2
+        | MINUS simpleRHS rhs2 # minusRhs2
+        | DIV simpleRHS rhs2 # divRhs2
+        | MOD simpleRHS rhs2 # modRhs2
+        | DIV DIV simpleRHS rhs2 #intDivRhs2
+        | # RHS2Nothing
 ;
 
 
-SimpleIdExpr : Id
-|'(' IdExpr ')'
+tRef : Id '<' clist '>' '[' alist ']' # TREF
+;
+sRef : Id '<' clist '>' # SREF
 ;
 
-IdExpr : SimpleIdExpr [IdExpr2]+
-;
-IdExpr2 : '+' SimpleIdExpr
-| '+' IntV
-| '*' IntV
-| '/' '/' IntV
-| '%' IntV
+clist : IntV clistNode #CLIST
 ;
 
-Const : FloatV 
-| IntV
+clistNode : ',' IntV clistNode # CLISTNODE
+| # CLISTNODENothing
 ;
 
-IntV : [0-9]+
+alist : idExpr alistNode # ALIST
 ;
-FloatV: [0-9]+ ('.')* [0-9]*
-;
-Id :[a-zA-Z]+
+alistNode: ',' idExpr alistNode # ALISTNODE
+| # ALISTNODENothing
 ;
 
+
+simpleIdExpr : Id  # ID
+|'(' idExpr ')'  # ONEEXPR
+;
+
+idExpr : simpleIdExpr idExpr2 # IDEXPR
+;
+
+idExpr2 : PLUS simpleIdExpr idExpr2 # PlusSimpleIDEXPR
+| PLUS IntV idExpr2  # PluesINTV
+| MUL IntV idExpr2 # MulINTV
+| DIV DIV IntV idExpr2 # IntDivINTV  
+| MOD IntV idExpr2 # ModINTV
+| # IDEXPRNothing
+;
+
+constNum : FloatV # FloatConst
+| IntV # IntConst
+;
+
+IntV : [0-9]+ 
+;
+FloatV: [0-9]+ ('.')* [0-9]* 
+;
+Id :[a-zA-Z]+ 
+;
+PLUS: '+';
+MUL: '*';
+DIV: '/';
+MOD: '%';
+MINUS: '-';
 
 WS  : [ \r\n\t]+ -> skip      
     ;
