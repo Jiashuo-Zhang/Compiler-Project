@@ -211,21 +211,21 @@ foreach( src_file ${antlr4-GENERATED_SRC} )
 endforeach( src_file ${antlr4-GENERATED_SRC} )
 
 include_directories(
-  ${PROJECT_SOURCE_DIR}/antlr4-runtime/
-  ${PROJECT_SOURCE_DIR}/antlr4-runtime/misc
-  ${PROJECT_SOURCE_DIR}/antlr4-runtime/atn
-  ${PROJECT_SOURCE_DIR}/antlr4-runtime/dfa
-  ${PROJECT_SOURCE_DIR}/antlr4-runtime/tree
-  ${PROJECT_SOURCE_DIR}/antlr4-runtime/support
-  ${PROJECT_SOURCE_DIR}/
-  ${PROJECT_SOURCE_DIR}/libs/
+  ${CMAKE_CURRENT_SOURCE_DIR}/antlr-runtime/
+  ${CMAKE_CURRENT_SOURCE_DIR}/antlr-runtime/misc
+  ${CMAKE_CURRENT_SOURCE_DIR}/antlr-runtime/atn
+  ${CMAKE_CURRENT_SOURCE_DIR}/antlr-runtime/dfa
+  ${CMAKE_CURRENT_SOURCE_DIR}/antlr-runtime/tree
+  ${CMAKE_CURRENT_SOURCE_DIR}/antlr-runtime/support
+  ${CMAKE_CURRENT_SOURCE_DIR}/
+  ${CMAKE_CURRENT_SOURCE_DIR}/libs/
   )
 
-set(antlr4-tutorial_SRC 
-  ${PROJECT_SOURCE_DIR}/antlr.cpp
-  ${PROJECT_SOURCE_DIR}/ImageVisitor.cpp
-  ${PROJECT_SOURCE_DIR}/Scene.cpp
-  ${antlr4-tutorial-GENERATED_SRC}
+set(antlr4-SRC 
+  ${CMAKE_CURRENT_SOURCE_DIR}/antlr.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/ImageVisitor.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/Scene.cpp
+  ${antlr4-GENERATED_SRC}
   )
 
 if (NOT CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
