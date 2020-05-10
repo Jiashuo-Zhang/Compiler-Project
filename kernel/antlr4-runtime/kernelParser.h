@@ -21,7 +21,8 @@ public:
     RuleProg = 0, RuleP = 1, RuleP1 = 2, RuleS = 3, RuleLhs = 4, RuleRhs = 5, 
     RuleRhsFirstCalc = 6, RuleRhsSecondCalc = 7, RuleTRef = 8, RuleSRef = 9, 
     RuleClist = 10, RuleClistNode = 11, RuleAlist = 12, RuleAlistNode = 13, 
-    RuleIdExpr = 14, RuleIdExprFirstCalc = 15, RuleConstNum = 16
+    RuleIdExpr = 14, RuleIdExprFirstCalc = 15, RuleIdExprSecondCalc = 16, 
+    RuleConstNum = 17
   };
 
   kernelParser(antlr4::TokenStream *input);
@@ -50,6 +51,7 @@ public:
   class AlistNodeContext;
   class IdExprContext;
   class IdExprFirstCalcContext;
+  class IdExprSecondCalcContext;
   class ConstNumContext; 
 
   class  ProgContext : public antlr4::ParserRuleContext {
@@ -557,7 +559,7 @@ public:
     SecondIdIntVContext(IdExprContext *ctx);
 
     IdExprContext *idExpr();
-    antlr4::tree::TerminalNode *PLUS();
+    IdExprSecondCalcContext *idExprSecondCalc();
     antlr4::tree::TerminalNode *IntV();
 
     virtual antlrcpp::Any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
@@ -624,6 +626,39 @@ public:
   };
 
   IdExprFirstCalcContext* idExprFirstCalc();
+
+  class  IdExprSecondCalcContext : public antlr4::ParserRuleContext {
+  public:
+    IdExprSecondCalcContext(antlr4::ParserRuleContext *parent, size_t invokingState);
+   
+    IdExprSecondCalcContext() = default;
+    void copyFrom(IdExprSecondCalcContext *context);
+    using antlr4::ParserRuleContext::copyFrom;
+
+    virtual size_t getRuleIndex() const override;
+
+   
+  };
+
+  class  IdSecondCalcIsMINUSContext : public IdExprSecondCalcContext {
+  public:
+    IdSecondCalcIsMINUSContext(IdExprSecondCalcContext *ctx);
+
+    antlr4::tree::TerminalNode *MINUS();
+
+    virtual antlrcpp::Any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
+  };
+
+  class  IdSecondCalcIsPLUSContext : public IdExprSecondCalcContext {
+  public:
+    IdSecondCalcIsPLUSContext(IdExprSecondCalcContext *ctx);
+
+    antlr4::tree::TerminalNode *PLUS();
+
+    virtual antlrcpp::Any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
+  };
+
+  IdExprSecondCalcContext* idExprSecondCalc();
 
   class  ConstNumContext : public antlr4::ParserRuleContext {
   public:

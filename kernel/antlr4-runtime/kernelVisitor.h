@@ -89,6 +89,10 @@ public:
 
     virtual antlrcpp::Any visitIdExprCalcIsMOD(kernelParser::IdExprCalcIsMODContext *context) = 0;
 
+    virtual antlrcpp::Any visitIdSecondCalcIsPLUS(kernelParser::IdSecondCalcIsPLUSContext *context) = 0;
+
+    virtual antlrcpp::Any visitIdSecondCalcIsMINUS(kernelParser::IdSecondCalcIsMINUSContext *context) = 0;
+
     virtual antlrcpp::Any visitFloatConst(kernelParser::FloatConstContext *context) = 0;
 
     virtual antlrcpp::Any visitIntConst(kernelParser::IntConstContext *context) = 0;

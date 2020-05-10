@@ -155,6 +155,14 @@ public:
     return visitChildren(ctx);
   }
 
+  virtual antlrcpp::Any visitIdSecondCalcIsPLUS(kernelParser::IdSecondCalcIsPLUSContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
+  virtual antlrcpp::Any visitIdSecondCalcIsMINUS(kernelParser::IdSecondCalcIsMINUSContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
   virtual antlrcpp::Any visitFloatConst(kernelParser::FloatConstContext *ctx) override {
     return visitChildren(ctx);
   }

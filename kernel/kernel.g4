@@ -56,7 +56,7 @@ alistNode: ',' idExpr alistNode # ALISTNODE
 
 
 idExpr : idExpr idExprFirstCalc IntV # FirstIdIntV
-| idExpr PLUS IntV # SecondIdIntV
+| idExpr idExprSecondCalc IntV # SecondIdIntV
 | idExpr PLUS idExpr #IdId
 | Id # OneId
 | '(' idExpr ')' # OneIdExpr
@@ -65,6 +65,9 @@ idExpr : idExpr idExprFirstCalc IntV # FirstIdIntV
 idExprFirstCalc : MUL # idExprCalcIsMUL
 |INTDIV # idExprCalcIsINTDIV
 |MOD # idExprCalcIsMOD
+;
+idExprSecondCalc: PLUS # idSecondCalcIsPLUS
+|MINUS # idSecondCalcIsMINUS
 ;
 
 
