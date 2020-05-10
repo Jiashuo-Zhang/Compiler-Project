@@ -77,7 +77,7 @@ public:
   }
 
   	antlrcpp::Any visitOnesRef(kernelParser::OnesRefContext *ctx) {
-  		Expr sRef=visit(ctx->sRef);
+  		Expr sRef=visit(ctx->sRef());
     	return sRef;
   }
 
@@ -88,7 +88,7 @@ public:
 
   	antlrcpp::Any visitRHS(kernelParser::RHSContext *ctx) {
   		Expr firstExpr=visit(ctx->simpleRHS());
-    	pair<bool pair<int,Expr>> p=visit(ctx->rhs2());
+    	pair<bool,pair<int,Expr>> p=visit(ctx->rhs2());
     	Expr res;
     	if(p.first==true)
     	{
@@ -123,7 +123,7 @@ public:
 
   	antlrcpp::Any visitPlusRhs2(kernelParser::PlusRhs2Context *ctx) {
     	Expr firstExpr=visit(ctx->simpleRHS());
-    	pair<bool pair<int,Expr>> p=visit(ctx->rhs2());
+    	pair<bool,pair<int,Expr>> p=visit(ctx->rhs2());
     	Expr res;
     	if(p.first==true)
     	{
@@ -634,11 +634,11 @@ public:
 	    		default:
 	    			break;
 	    	}
-	    	return make_pair(true,make_pair(4,res);
+	    	return make_pair(true,make_pair(4,res));
 	    }
 	    else
 	    {
-	    	return make_pair(true,make_pair(4,firstExpr);
+	    	return make_pair(true,make_pair(4,firstExpr));
 	    }
     	return visitChildren(ctx);
   }
