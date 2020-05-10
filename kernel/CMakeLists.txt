@@ -3,10 +3,10 @@ cmake_minimum_required(VERSION 2.8)
 project("antlr4-test")
 
 set(antlr4-GENERATED_SRC
-  ${CMAKE_CURRENT_SOURCE_DIR}/antlr4-runtime/KernelLexer.cpp 
-  ${CMAKE_CURRENT_SOURCE_DIR}/antlr4-runtime/KernelParser.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/antlr4-runtime/KernelBaseVisitor.cpp   
-  ${CMAKE_CURRENT_SOURCE_DIR}/antlr4-runtime/KernelVisitor.cpp   
+  ${CMAKE_CURRENT_SOURCE_DIR}/antlr4-runtime/kernelLexer.cpp 
+  ${CMAKE_CURRENT_SOURCE_DIR}/antlr4-runtime/kernelParser.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/antlr4-runtime/kernelBaseVisitor.cpp   
+  ${CMAKE_CURRENT_SOURCE_DIR}/antlr4-runtime/kernelVisitor.cpp   
  )
 
 foreach( src_file ${antlr4-GENERATED_SRC} )
@@ -31,7 +31,7 @@ include_directories(
 set(antlr4-SRC 
   ${CMAKE_CURRENT_SOURCE_DIR}/main.cpp
   ${antlr4-GENERATED_SRC}
-  )
+)
 
 if (NOT CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
   set (flags_1 "-Wno-overloaded-virtual")
@@ -57,13 +57,13 @@ if (CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
 endif()
 
 if(WIN32)
-  target_link_libraries(antlr4-test "${PROJECT_SOURCE_DIR}/libs/antlr4-runtime.lib")
+  target_link_libraries(antlr4-test "${CMAKE_CURRENT_SOURCE_DIR}/libs/antlr4-runtime.lib")
 endif()
 
 if(APPLE)
-  target_link_libraries(antlr4-test "${PROJECT_SOURCE_DIR}/libs/libantlr4-runtime.dylib")
+  target_link_libraries(antlr4-test "${CMAKE_CURRENT_SOURCE_DIR}/libs/libantlr4-runtime.dylib")
 elseif(UNIX)
-  target_link_libraries(antlr4-test "${PROJECT_SOURCE_DIR}/libs/libantlr4-runtime.so")
+  target_link_libraries(antlr4-test "${CMAKE_CURRENT_SOURCE_DIR}/libs/libantlr4-runtime.so")
 endif()  
 
 target_link_libraries(antlr4-test ${SYSTEM_LIBS})
@@ -71,28 +71,28 @@ target_link_libraries(antlr4-test ${SYSTEM_LIBS})
 if(CMAKE_SYSTEM_NAME MATCHES "Linux")
 add_custom_command(TARGET antlr4-test POST_BUILD
   COMMAND ${CMAKE_COMMAND} -E copy_if_different
-  "${PROJECT_SOURCE_DIR}/libs/libantlr4-runtime.so"
+  "${CMAKE_CURRENT_SOURCE_DIR}/libs/libantlr4-runtime.so"
   $<TARGET_FILE_DIR:antlr4-test>)
 endif()
 
 if(WIN32)
 add_custom_command(TARGET antlr4-test POST_BUILD
   COMMAND ${CMAKE_COMMAND} -E copy_if_different
-  "${PROJECT_SOURCE_DIR}/libs/antlr4-runtime.dll"
+  "${CMAKE_CURRENT_SOURCE_DIR}/libs/antlr4-runtime.dll"
   $<TARGET_FILE_DIR:antlr4-test>)
 endif()
 
 if(APPLE)
 add_custom_command(TARGET antlr4-test POST_BUILD
   COMMAND ${CMAKE_COMMAND} -E copy_if_different
-  "${PROJECT_SOURCE_DIR}/libs/antlr4-runtime.dylib"
+  "${CMAKE_CURRENT_SOURCE_DIR}/libs/antlr4-runtime.dylib"
   $<TARGET_FILE_DIR:antlr4-test>)
 endif()
 
 # copy the input file next to the generated executable
 add_custom_command(TARGET antlr4-test POST_BUILD
   COMMAND ${CMAKE_COMMAND} -E copy_if_different
-  "${PROJECT_SOURCE_DIR}/input.scene"
+  "${CMAKE_CURRENT_SOURCE_DIR}/input.kernel"
   $<TARGET_FILE_DIR:antlr4-test>)
 
 # necessary because the default working directory of Visual Studio
@@ -103,6 +103,6 @@ add_custom_command(TARGET antlr4-test POST_BUILD
 if (WIN32)
 add_custom_command(TARGET antlr4-test POST_BUILD
   COMMAND ${CMAKE_COMMAND} -E copy_if_different
-  "${PROJECT_SOURCE_DIR}/input.scene"
+  "${CMAKE_CURRENT_SOURCE_DIR}/input.kernel"
   $<TARGET_FILE_DIR:antlr4-test>/../)
 endif()

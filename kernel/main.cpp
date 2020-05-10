@@ -19,6 +19,6 @@ int main(int argc, const char* argv[]) {
    // simpleVisitor visitor;
     //antlrcpp::Any p=visitor.visitStart(tree);
     kernelBaseVisitor visitor;
-    antlrcpp::Any p=visitor.visitStart(tree);
+    // antlrcpp::Any p=visitor.visitStart(tree);
     return 0;
 }
