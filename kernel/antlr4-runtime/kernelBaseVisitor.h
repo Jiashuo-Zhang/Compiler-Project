@@ -43,51 +43,51 @@ public:
     return visitChildren(ctx);
   }
 
+  virtual antlrcpp::Any visitRHSconstNum(kernelParser::RHSconstNumContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
+  virtual antlrcpp::Any visitRHSSecondopRHS(kernelParser::RHSSecondopRHSContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
   virtual antlrcpp::Any visitOneRHS(kernelParser::OneRHSContext *ctx) override {
     return visitChildren(ctx);
   }
 
-  virtual antlrcpp::Any visitOnetRef(kernelParser::OnetRefContext *ctx) override {
+  virtual antlrcpp::Any visitRHSFirstropRHS(kernelParser::RHSFirstropRHSContext *ctx) override {
     return visitChildren(ctx);
   }
 
-  virtual antlrcpp::Any visitOnesRef(kernelParser::OnesRefContext *ctx) override {
+  virtual antlrcpp::Any visitRHSsRef(kernelParser::RHSsRefContext *ctx) override {
     return visitChildren(ctx);
   }
 
-  virtual antlrcpp::Any visitOneconstNum(kernelParser::OneconstNumContext *ctx) override {
+  virtual antlrcpp::Any visitRHStRef(kernelParser::RHStRefContext *ctx) override {
     return visitChildren(ctx);
   }
 
-  virtual antlrcpp::Any visitRHS(kernelParser::RHSContext *ctx) override {
+  virtual antlrcpp::Any visitRHSFirstCalcIsMUL(kernelParser::RHSFirstCalcIsMULContext *ctx) override {
     return visitChildren(ctx);
   }
 
-  virtual antlrcpp::Any visitPlusRhs2(kernelParser::PlusRhs2Context *ctx) override {
+  virtual antlrcpp::Any visitRHSFirstCalcIsDIV(kernelParser::RHSFirstCalcIsDIVContext *ctx) override {
     return visitChildren(ctx);
   }
 
-  virtual antlrcpp::Any visitMulRhs2(kernelParser::MulRhs2Context *ctx) override {
+  virtual antlrcpp::Any visitRHSFirstCalcMOD(kernelParser::RHSFirstCalcMODContext *ctx) override {
     return visitChildren(ctx);
   }
 
-  virtual antlrcpp::Any visitMinusRhs2(kernelParser::MinusRhs2Context *ctx) override {
+  virtual antlrcpp::Any visitRHSFirstCalcINTDIV(kernelParser::RHSFirstCalcINTDIVContext *ctx) override {
     return visitChildren(ctx);
   }
 
-  virtual antlrcpp::Any visitDivRhs2(kernelParser::DivRhs2Context *ctx) override {
+  virtual antlrcpp::Any visitRHSSecondCalcIsPLUS(kernelParser::RHSSecondCalcIsPLUSContext *ctx) override {
     return visitChildren(ctx);
   }
 
-  virtual antlrcpp::Any visitModRhs2(kernelParser::ModRhs2Context *ctx) override {
-    return visitChildren(ctx);
-  }
-
-  virtual antlrcpp::Any visitIntDivRhs2(kernelParser::IntDivRhs2Context *ctx) override {
-    return visitChildren(ctx);
-  }
-
-  virtual antlrcpp::Any visitRHS2Nothing(kernelParser::RHS2NothingContext *ctx) override {
+  virtual antlrcpp::Any visitRHSSecondCalcIsMINUS(kernelParser::RHSSecondCalcIsMINUSContext *ctx) override {
     return visitChildren(ctx);
   }
 
@@ -123,39 +123,35 @@ public:
     return visitChildren(ctx);
   }
 
-  virtual antlrcpp::Any visitID(kernelParser::IDContext *ctx) override {
+  virtual antlrcpp::Any visitFirstIdIntV(kernelParser::FirstIdIntVContext *ctx) override {
     return visitChildren(ctx);
   }
 
-  virtual antlrcpp::Any visitONEEXPR(kernelParser::ONEEXPRContext *ctx) override {
+  virtual antlrcpp::Any visitIdId(kernelParser::IdIdContext *ctx) override {
     return visitChildren(ctx);
   }
 
-  virtual antlrcpp::Any visitIDEXPR(kernelParser::IDEXPRContext *ctx) override {
+  virtual antlrcpp::Any visitSecondIdIntV(kernelParser::SecondIdIntVContext *ctx) override {
     return visitChildren(ctx);
   }
 
-  virtual antlrcpp::Any visitPlusSimpleIDEXPR(kernelParser::PlusSimpleIDEXPRContext *ctx) override {
+  virtual antlrcpp::Any visitOneId(kernelParser::OneIdContext *ctx) override {
     return visitChildren(ctx);
   }
 
-  virtual antlrcpp::Any visitPluesINTV(kernelParser::PluesINTVContext *ctx) override {
+  virtual antlrcpp::Any visitOneIdExpr(kernelParser::OneIdExprContext *ctx) override {
     return visitChildren(ctx);
   }
 
-  virtual antlrcpp::Any visitMulINTV(kernelParser::MulINTVContext *ctx) override {
+  virtual antlrcpp::Any visitIdExprCalcIsMUL(kernelParser::IdExprCalcIsMULContext *ctx) override {
     return visitChildren(ctx);
   }
 
-  virtual antlrcpp::Any visitIntDivINTV(kernelParser::IntDivINTVContext *ctx) override {
+  virtual antlrcpp::Any visitIdExprCalcIsINTDIV(kernelParser::IdExprCalcIsINTDIVContext *ctx) override {
     return visitChildren(ctx);
   }
 
-  virtual antlrcpp::Any visitModINTV(kernelParser::ModINTVContext *ctx) override {
-    return visitChildren(ctx);
-  }
-
-  virtual antlrcpp::Any visitIDEXPRNothing(kernelParser::IDEXPRNothingContext *ctx) override {
+  virtual antlrcpp::Any visitIdExprCalcIsMOD(kernelParser::IdExprCalcIsMODContext *ctx) override {
     return visitChildren(ctx);
   }
 

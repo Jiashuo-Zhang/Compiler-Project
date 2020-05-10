@@ -32,6 +32,7 @@ include_directories(
 
 set(antlr4-SRC 
   ${CMAKE_CURRENT_SOURCE_DIR}/main.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/Kernel2IRVisitor.cpp
   ${antlr4-GENERATED_SRC}
 )
 
@@ -87,7 +88,7 @@ endif()
 if(APPLE)
 add_custom_command(TARGET antlr4-test POST_BUILD
   COMMAND ${CMAKE_COMMAND} -E copy_if_different
-  "${CMAKE_CURRENT_SOURCE_DIR}/libs/antlr4-runtime.dylib"
+  "${CMAKE_CURRENT_SOURCE_DIR}/libs/libantlr4-runtime.dylib"
   $<TARGET_FILE_DIR:antlr4-test>)
 endif()
 

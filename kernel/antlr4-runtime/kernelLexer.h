@@ -13,8 +13,8 @@ class  kernelLexer : public antlr4::Lexer {
 public:
   enum {
     T__0 = 1, T__1 = 2, T__2 = 3, T__3 = 4, T__4 = 5, T__5 = 6, T__6 = 7, 
-    T__7 = 8, IntV = 9, FloatV = 10, Id = 11, PLUS = 12, MUL = 13, DIV = 14, 
-    MOD = 15, MINUS = 16, WS = 17
+    T__7 = 8, IntV = 9, FloatV = 10, Id = 11, PLUS = 12, MUL = 13, INTDIV = 14, 
+    DIV = 15, MOD = 16, MINUS = 17, WS = 18
   };
 
   kernelLexer(antlr4::CharStream *input);

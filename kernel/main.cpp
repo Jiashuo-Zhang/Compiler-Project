@@ -2,7 +2,7 @@
 #include "antlr4-runtime/antlr4-runtime.h"
 #include "antlr4-runtime/kernelLexer.h"
 #include "antlr4-runtime/kernelParser.h"
-#include "antlr4-runtime/kernelBaseVisitor.h"
+#include "Kernel2IRVisitor.h"
 using namespace std;
 using namespace antlr4;
 int main(int argc, const char* argv[]) {
@@ -18,7 +18,7 @@ int main(int argc, const char* argv[]) {
     //antlrcpp::Any p=visitor.visitStart(tree);
    // simpleVisitor visitor;
     //antlrcpp::Any p=visitor.visitStart(tree);
-    kernelBaseVisitor visitor;
-    // antlrcpp::Any p=visitor.visitStart(tree);
+    Kernel2IRVisitor visitor;
+    antlrcpp::Any p=visitor.visit(tree);
     return 0;
 }

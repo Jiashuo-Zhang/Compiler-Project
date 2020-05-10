@@ -16,23 +16,24 @@ s : lhs '=' rhs   # VisitS
 lhs : tRef  # LHS
 ;
 
-simpleRHS 
-: '(' rhs ')' # OneRHS
-| tRef # OnetRef
-| sRef # OnesRef
-| constNum # OneconstNum
+
+rhs : rhs rhsFirstCalc rhs # RHSFirstropRHS
+| rhs rhsSecondCalc rhs # RHSSecondopRHS
+| tRef # RHStRef
+| sRef # RHSsRef
+| constNum # RHSconstNum
+| '(' rhs ')' # OneRHS
+;
+rhsFirstCalc : MUL # RHSFirstCalcIsMUL
+|DIV # RHSFirstCalcIsDIV
+|MOD # RHSFirstCalcMOD
+|INTDIV # RHSFirstCalcINTDIV
+; 
+rhsSecondCalc : PLUS # RHSSecondCalcIsPLUS
+|MINUS # RHSSecondCalcIsMINUS
 ;
 
-rhs : simpleRHS rhs2 # RHS
-;
-rhs2 : PLUS simpleRHS rhs2 # plusRhs2
-       	| MUL simpleRHS rhs2 # mulRhs2
-        | MINUS simpleRHS rhs2 # minusRhs2
-        | DIV simpleRHS rhs2 # divRhs2
-        | MOD simpleRHS rhs2 # modRhs2
-        | DIV DIV simpleRHS rhs2 #intDivRhs2
-        | # RHS2Nothing
-;
+
 
 
 tRef : Id '<' clist '>' '[' alist ']' # TREF
@@ -54,24 +55,24 @@ alistNode: ',' idExpr alistNode # ALISTNODE
 ;
 
 
-simpleIdExpr : Id  # ID
-|'(' idExpr ')'  # ONEEXPR
+idExpr : idExpr idExprFirstCalc IntV # FirstIdIntV
+| idExpr PLUS IntV # SecondIdIntV
+| idExpr PLUS idExpr #IdId
+| Id # OneId
+| '(' idExpr ')' # OneIdExpr
 ;
 
-idExpr : simpleIdExpr idExpr2 # IDEXPR
+idExprFirstCalc : MUL # idExprCalcIsMUL
+|INTDIV # idExprCalcIsINTDIV
+|MOD # idExprCalcIsMOD
 ;
 
-idExpr2 : PLUS simpleIdExpr idExpr2 # PlusSimpleIDEXPR
-| PLUS IntV idExpr2  # PluesINTV
-| MUL IntV idExpr2 # MulINTV
-| DIV DIV IntV idExpr2 # IntDivINTV  
-| MOD IntV idExpr2 # ModINTV
-| # IDEXPRNothing
-;
+
 
 constNum : FloatV # FloatConst
 | IntV # IntConst
 ;
+
 
 IntV : [0-9]+ 
 ;
@@ -81,6 +82,7 @@ Id :[a-zA-Z]+
 ;
 PLUS: '+';
 MUL: '*';
+INTDIV: '/''/';
 DIV: '/';
 MOD: '%';
 MINUS: '-';

@@ -6,19 +6,22 @@
 
 #include "antlr4-runtime.h"
 
+
+
+
 class  kernelParser : public antlr4::Parser {
 public:
   enum {
     T__0 = 1, T__1 = 2, T__2 = 3, T__3 = 4, T__4 = 5, T__5 = 6, T__6 = 7, 
-    T__7 = 8, IntV = 9, FloatV = 10, Id = 11, PLUS = 12, MUL = 13, DIV = 14, 
-    MOD = 15, MINUS = 16, WS = 17
+    T__7 = 8, IntV = 9, FloatV = 10, Id = 11, PLUS = 12, MUL = 13, INTDIV = 14, 
+    DIV = 15, MOD = 16, MINUS = 17, WS = 18
   };
 
   enum {
-    RuleProg = 0, RuleP = 1, RuleP1 = 2, RuleS = 3, RuleLhs = 4, RuleSimpleRHS = 5, 
-    RuleRhs = 6, RuleRhs2 = 7, RuleTRef = 8, RuleSRef = 9, RuleClist = 10, 
-    RuleClistNode = 11, RuleAlist = 12, RuleAlistNode = 13, RuleSimpleIdExpr = 14, 
-    RuleIdExpr = 15, RuleIdExpr2 = 16, RuleConstNum = 17
+    RuleProg = 0, RuleP = 1, RuleP1 = 2, RuleS = 3, RuleLhs = 4, RuleRhs = 5, 
+    RuleRhsFirstCalc = 6, RuleRhsSecondCalc = 7, RuleTRef = 8, RuleSRef = 9, 
+    RuleClist = 10, RuleClistNode = 11, RuleAlist = 12, RuleAlistNode = 13, 
+    RuleIdExpr = 14, RuleIdExprFirstCalc = 15, RuleConstNum = 16
   };
 
   kernelParser(antlr4::TokenStream *input);
@@ -36,18 +39,17 @@ public:
   class P1Context;
   class SContext;
   class LhsContext;
-  class SimpleRHSContext;
   class RhsContext;
-  class Rhs2Context;
+  class RhsFirstCalcContext;
+  class RhsSecondCalcContext;
   class TRefContext;
   class SRefContext;
   class ClistContext;
   class ClistNodeContext;
   class AlistContext;
   class AlistNodeContext;
-  class SimpleIdExprContext;
   class IdExprContext;
-  class IdExpr2Context;
+  class IdExprFirstCalcContext;
   class ConstNumContext; 
 
   class  ProgContext : public antlr4::ParserRuleContext {
@@ -191,57 +193,6 @@ public:
 
   LhsContext* lhs();
 
-  class  SimpleRHSContext : public antlr4::ParserRuleContext {
-  public:
-    SimpleRHSContext(antlr4::ParserRuleContext *parent, size_t invokingState);
-   
-    SimpleRHSContext() = default;
-    void copyFrom(SimpleRHSContext *context);
-    using antlr4::ParserRuleContext::copyFrom;
-
-    virtual size_t getRuleIndex() const override;
-
-   
-  };
-
-  class  OnesRefContext : public SimpleRHSContext {
-  public:
-    OnesRefContext(SimpleRHSContext *ctx);
-
-    SRefContext *sRef();
-
-    virtual antlrcpp::Any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
-  };
-
-  class  OneconstNumContext : public SimpleRHSContext {
-  public:
-    OneconstNumContext(SimpleRHSContext *ctx);
-
-    ConstNumContext *constNum();
-
-    virtual antlrcpp::Any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
-  };
-
-  class  OnetRefContext : public SimpleRHSContext {
-  public:
-    OnetRefContext(SimpleRHSContext *ctx);
-
-    TRefContext *tRef();
-
-    virtual antlrcpp::Any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
-  };
-
-  class  OneRHSContext : public SimpleRHSContext {
-  public:
-    OneRHSContext(SimpleRHSContext *ctx);
-
-    RhsContext *rhs();
-
-    virtual antlrcpp::Any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
-  };
-
-  SimpleRHSContext* simpleRHS();
-
   class  RhsContext : public antlr4::ParserRuleContext {
   public:
     RhsContext(antlr4::ParserRuleContext *parent, size_t invokingState);
@@ -255,24 +206,72 @@ public:
    
   };
 
-  class  RHSContext : public RhsContext {
+  class  RHSconstNumContext : public RhsContext {
   public:
-    RHSContext(RhsContext *ctx);
+    RHSconstNumContext(RhsContext *ctx);
 
-    SimpleRHSContext *simpleRHS();
-    Rhs2Context *rhs2();
+    ConstNumContext *constNum();
+
+    virtual antlrcpp::Any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
+  };
+
+  class  RHSSecondopRHSContext : public RhsContext {
+  public:
+    RHSSecondopRHSContext(RhsContext *ctx);
+
+    std::vector<RhsContext *> rhs();
+    RhsContext* rhs(size_t i);
+    RhsSecondCalcContext *rhsSecondCalc();
+
+    virtual antlrcpp::Any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
+  };
+
+  class  OneRHSContext : public RhsContext {
+  public:
+    OneRHSContext(RhsContext *ctx);
+
+    RhsContext *rhs();
+
+    virtual antlrcpp::Any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
+  };
+
+  class  RHSFirstropRHSContext : public RhsContext {
+  public:
+    RHSFirstropRHSContext(RhsContext *ctx);
+
+    std::vector<RhsContext *> rhs();
+    RhsContext* rhs(size_t i);
+    RhsFirstCalcContext *rhsFirstCalc();
+
+    virtual antlrcpp::Any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
+  };
+
+  class  RHSsRefContext : public RhsContext {
+  public:
+    RHSsRefContext(RhsContext *ctx);
+
+    SRefContext *sRef();
+
+    virtual antlrcpp::Any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
+  };
+
+  class  RHStRefContext : public RhsContext {
+  public:
+    RHStRefContext(RhsContext *ctx);
+
+    TRefContext *tRef();
 
     virtual antlrcpp::Any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
   };
 
   RhsContext* rhs();
-
-  class  Rhs2Context : public antlr4::ParserRuleContext {
+  RhsContext* rhs(int precedence);
+  class  RhsFirstCalcContext : public antlr4::ParserRuleContext {
   public:
-    Rhs2Context(antlr4::ParserRuleContext *parent, size_t invokingState);
+    RhsFirstCalcContext(antlr4::ParserRuleContext *parent, size_t invokingState);
    
-    Rhs2Context() = default;
-    void copyFrom(Rhs2Context *context);
+    RhsFirstCalcContext() = default;
+    void copyFrom(RhsFirstCalcContext *context);
     using antlr4::ParserRuleContext::copyFrom;
 
     virtual size_t getRuleIndex() const override;
@@ -280,82 +279,76 @@ public:
    
   };
 
-  class  DivRhs2Context : public Rhs2Context {
+  class  RHSFirstCalcIsDIVContext : public RhsFirstCalcContext {
   public:
-    DivRhs2Context(Rhs2Context *ctx);
+    RHSFirstCalcIsDIVContext(RhsFirstCalcContext *ctx);
 
     antlr4::tree::TerminalNode *DIV();
-    SimpleRHSContext *simpleRHS();
-    Rhs2Context *rhs2();
 
     virtual antlrcpp::Any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
   };
 
-  class  PlusRhs2Context : public Rhs2Context {
+  class  RHSFirstCalcINTDIVContext : public RhsFirstCalcContext {
   public:
-    PlusRhs2Context(Rhs2Context *ctx);
+    RHSFirstCalcINTDIVContext(RhsFirstCalcContext *ctx);
 
-    antlr4::tree::TerminalNode *PLUS();
-    SimpleRHSContext *simpleRHS();
-    Rhs2Context *rhs2();
+    antlr4::tree::TerminalNode *INTDIV();
 
     virtual antlrcpp::Any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
   };
 
-  class  MinusRhs2Context : public Rhs2Context {
+  class  RHSFirstCalcIsMULContext : public RhsFirstCalcContext {
   public:
-    MinusRhs2Context(Rhs2Context *ctx);
-
-    antlr4::tree::TerminalNode *MINUS();
-    SimpleRHSContext *simpleRHS();
-    Rhs2Context *rhs2();
-
-    virtual antlrcpp::Any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
-  };
-
-  class  MulRhs2Context : public Rhs2Context {
-  public:
-    MulRhs2Context(Rhs2Context *ctx);
+    RHSFirstCalcIsMULContext(RhsFirstCalcContext *ctx);
 
     antlr4::tree::TerminalNode *MUL();
-    SimpleRHSContext *simpleRHS();
-    Rhs2Context *rhs2();
 
     virtual antlrcpp::Any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
   };
 
-  class  ModRhs2Context : public Rhs2Context {
+  class  RHSFirstCalcMODContext : public RhsFirstCalcContext {
   public:
-    ModRhs2Context(Rhs2Context *ctx);
+    RHSFirstCalcMODContext(RhsFirstCalcContext *ctx);
 
     antlr4::tree::TerminalNode *MOD();
-    SimpleRHSContext *simpleRHS();
-    Rhs2Context *rhs2();
 
     virtual antlrcpp::Any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
   };
 
-  class  IntDivRhs2Context : public Rhs2Context {
+  RhsFirstCalcContext* rhsFirstCalc();
+
+  class  RhsSecondCalcContext : public antlr4::ParserRuleContext {
   public:
-    IntDivRhs2Context(Rhs2Context *ctx);
+    RhsSecondCalcContext(antlr4::ParserRuleContext *parent, size_t invokingState);
+   
+    RhsSecondCalcContext() = default;
+    void copyFrom(RhsSecondCalcContext *context);
+    using antlr4::ParserRuleContext::copyFrom;
 
-    std::vector<antlr4::tree::TerminalNode *> DIV();
-    antlr4::tree::TerminalNode* DIV(size_t i);
-    SimpleRHSContext *simpleRHS();
-    Rhs2Context *rhs2();
+    virtual size_t getRuleIndex() const override;
 
-    virtual antlrcpp::Any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
+   
   };
 
-  class  RHS2NothingContext : public Rhs2Context {
+  class  RHSSecondCalcIsPLUSContext : public RhsSecondCalcContext {
   public:
-    RHS2NothingContext(Rhs2Context *ctx);
+    RHSSecondCalcIsPLUSContext(RhsSecondCalcContext *ctx);
 
+    antlr4::tree::TerminalNode *PLUS();
 
     virtual antlrcpp::Any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
   };
 
-  Rhs2Context* rhs2();
+  class  RHSSecondCalcIsMINUSContext : public RhsSecondCalcContext {
+  public:
+    RHSSecondCalcIsMINUSContext(RhsSecondCalcContext *ctx);
+
+    antlr4::tree::TerminalNode *MINUS();
+
+    virtual antlrcpp::Any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
+  };
+
+  RhsSecondCalcContext* rhsSecondCalc();
 
   class  TRefContext : public antlr4::ParserRuleContext {
   public:
@@ -524,39 +517,6 @@ public:
 
   AlistNodeContext* alistNode();
 
-  class  SimpleIdExprContext : public antlr4::ParserRuleContext {
-  public:
-    SimpleIdExprContext(antlr4::ParserRuleContext *parent, size_t invokingState);
-   
-    SimpleIdExprContext() = default;
-    void copyFrom(SimpleIdExprContext *context);
-    using antlr4::ParserRuleContext::copyFrom;
-
-    virtual size_t getRuleIndex() const override;
-
-   
-  };
-
-  class  ONEEXPRContext : public SimpleIdExprContext {
-  public:
-    ONEEXPRContext(SimpleIdExprContext *ctx);
-
-    IdExprContext *idExpr();
-
-    virtual antlrcpp::Any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
-  };
-
-  class  IDContext : public SimpleIdExprContext {
-  public:
-    IDContext(SimpleIdExprContext *ctx);
-
-    antlr4::tree::TerminalNode *Id();
-
-    virtual antlrcpp::Any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
-  };
-
-  SimpleIdExprContext* simpleIdExpr();
-
   class  IdExprContext : public antlr4::ParserRuleContext {
   public:
     IdExprContext(antlr4::ParserRuleContext *parent, size_t invokingState);
@@ -570,24 +530,65 @@ public:
    
   };
 
-  class  IDEXPRContext : public IdExprContext {
+  class  FirstIdIntVContext : public IdExprContext {
   public:
-    IDEXPRContext(IdExprContext *ctx);
+    FirstIdIntVContext(IdExprContext *ctx);
 
-    SimpleIdExprContext *simpleIdExpr();
-    IdExpr2Context *idExpr2();
+    IdExprContext *idExpr();
+    IdExprFirstCalcContext *idExprFirstCalc();
+    antlr4::tree::TerminalNode *IntV();
+
+    virtual antlrcpp::Any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
+  };
+
+  class  IdIdContext : public IdExprContext {
+  public:
+    IdIdContext(IdExprContext *ctx);
+
+    std::vector<IdExprContext *> idExpr();
+    IdExprContext* idExpr(size_t i);
+    antlr4::tree::TerminalNode *PLUS();
+
+    virtual antlrcpp::Any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
+  };
+
+  class  SecondIdIntVContext : public IdExprContext {
+  public:
+    SecondIdIntVContext(IdExprContext *ctx);
+
+    IdExprContext *idExpr();
+    antlr4::tree::TerminalNode *PLUS();
+    antlr4::tree::TerminalNode *IntV();
+
+    virtual antlrcpp::Any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
+  };
+
+  class  OneIdContext : public IdExprContext {
+  public:
+    OneIdContext(IdExprContext *ctx);
+
+    antlr4::tree::TerminalNode *Id();
+
+    virtual antlrcpp::Any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
+  };
+
+  class  OneIdExprContext : public IdExprContext {
+  public:
+    OneIdExprContext(IdExprContext *ctx);
+
+    IdExprContext *idExpr();
 
     virtual antlrcpp::Any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
   };
 
   IdExprContext* idExpr();
-
-  class  IdExpr2Context : public antlr4::ParserRuleContext {
+  IdExprContext* idExpr(int precedence);
+  class  IdExprFirstCalcContext : public antlr4::ParserRuleContext {
   public:
-    IdExpr2Context(antlr4::ParserRuleContext *parent, size_t invokingState);
+    IdExprFirstCalcContext(antlr4::ParserRuleContext *parent, size_t invokingState);
    
-    IdExpr2Context() = default;
-    void copyFrom(IdExpr2Context *context);
+    IdExprFirstCalcContext() = default;
+    void copyFrom(IdExprFirstCalcContext *context);
     using antlr4::ParserRuleContext::copyFrom;
 
     virtual size_t getRuleIndex() const override;
@@ -595,71 +596,34 @@ public:
    
   };
 
-  class  MulINTVContext : public IdExpr2Context {
+  class  IdExprCalcIsMODContext : public IdExprFirstCalcContext {
   public:
-    MulINTVContext(IdExpr2Context *ctx);
-
-    antlr4::tree::TerminalNode *MUL();
-    antlr4::tree::TerminalNode *IntV();
-    IdExpr2Context *idExpr2();
-
-    virtual antlrcpp::Any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
-  };
-
-  class  PlusSimpleIDEXPRContext : public IdExpr2Context {
-  public:
-    PlusSimpleIDEXPRContext(IdExpr2Context *ctx);
-
-    antlr4::tree::TerminalNode *PLUS();
-    SimpleIdExprContext *simpleIdExpr();
-    IdExpr2Context *idExpr2();
-
-    virtual antlrcpp::Any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
-  };
-
-  class  ModINTVContext : public IdExpr2Context {
-  public:
-    ModINTVContext(IdExpr2Context *ctx);
+    IdExprCalcIsMODContext(IdExprFirstCalcContext *ctx);
 
     antlr4::tree::TerminalNode *MOD();
-    antlr4::tree::TerminalNode *IntV();
-    IdExpr2Context *idExpr2();
 
     virtual antlrcpp::Any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
   };
 
-  class  PluesINTVContext : public IdExpr2Context {
+  class  IdExprCalcIsMULContext : public IdExprFirstCalcContext {
   public:
-    PluesINTVContext(IdExpr2Context *ctx);
+    IdExprCalcIsMULContext(IdExprFirstCalcContext *ctx);
 
-    antlr4::tree::TerminalNode *PLUS();
-    antlr4::tree::TerminalNode *IntV();
-    IdExpr2Context *idExpr2();
+    antlr4::tree::TerminalNode *MUL();
 
     virtual antlrcpp::Any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
   };
 
-  class  IDEXPRNothingContext : public IdExpr2Context {
+  class  IdExprCalcIsINTDIVContext : public IdExprFirstCalcContext {
   public:
-    IDEXPRNothingContext(IdExpr2Context *ctx);
+    IdExprCalcIsINTDIVContext(IdExprFirstCalcContext *ctx);
 
-
-    virtual antlrcpp::Any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
-  };
-
-  class  IntDivINTVContext : public IdExpr2Context {
-  public:
-    IntDivINTVContext(IdExpr2Context *ctx);
-
-    std::vector<antlr4::tree::TerminalNode *> DIV();
-    antlr4::tree::TerminalNode* DIV(size_t i);
-    antlr4::tree::TerminalNode *IntV();
-    IdExpr2Context *idExpr2();
+    antlr4::tree::TerminalNode *INTDIV();
 
     virtual antlrcpp::Any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
   };
 
-  IdExpr2Context* idExpr2();
+  IdExprFirstCalcContext* idExprFirstCalc();
 
   class  ConstNumContext : public antlr4::ParserRuleContext {
   public:
@@ -694,6 +658,10 @@ public:
 
   ConstNumContext* constNum();
 
+
+  virtual bool sempred(antlr4::RuleContext *_localctx, size_t ruleIndex, size_t predicateIndex) override;
+  bool rhsSempred(RhsContext *_localctx, size_t predicateIndex);
+  bool idExprSempred(IdExprContext *_localctx, size_t predicateIndex);
 
 private:
   static std::vector<antlr4::dfa::DFA> _decisionToDFA;
