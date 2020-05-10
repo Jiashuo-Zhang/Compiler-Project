@@ -2,6 +2,8 @@ cmake_minimum_required(VERSION 2.8)
 
 project("antlr4-test")
 
+set(CMAKE_CXX_STANDARD 11)
+
 set(antlr4-GENERATED_SRC
   ${CMAKE_CURRENT_SOURCE_DIR}/antlr4-runtime/kernelLexer.cpp 
   ${CMAKE_CURRENT_SOURCE_DIR}/antlr4-runtime/kernelParser.cpp
