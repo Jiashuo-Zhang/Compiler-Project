@@ -1,3 +1,6 @@
+#ifndef Kernel2IRVisitor_H
+#define Kernel2IRVisitor_H
+
 #include <iostream>
 #include <string>
 #include <vector>
@@ -384,3 +387,5 @@ class Kernel2IRVisitor : public kernelBaseVisitor
         return expr;
     }
 };
+
+#endif
