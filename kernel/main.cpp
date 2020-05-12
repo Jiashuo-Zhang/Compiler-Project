@@ -3,6 +3,11 @@
 #include "antlr4-runtime/kernelLexer.h"
 #include "antlr4-runtime/kernelParser.h"
 #include "Kernel2IRVisitor.h"
+#include "IR.h"
+#include "IRMutator.h"
+#include "IRVisitor.h"
+#include "IRPrinter.h"
+#include "type.h"
 using namespace std;
 using namespace antlr4;
 int main(int argc, const char* argv[]) {
@@ -16,9 +21,18 @@ int main(int argc, const char* argv[]) {
     kernelParser::ProgContext* tree = parser.prog();
     //kernel2IRVisitor visitor;
     //antlrcpp::Any p=visitor.visitStart(tree);
-   // simpleVisitor visitor;
+    //simpleVisitor visitor;
     //antlrcpp::Any p=visitor.visitStart(tree);
     Kernel2IRVisitor visitor;
-    antlrcpp::Any p=visitor.visit(tree);
+    vector<Stmt> stmtList = visitor.visit(tree).as<vector<Stmt> >();
+    for (auto stmt : stmtList) {
+        IRVisitor visitor;
+        stmt.visit_stmt(&visitor);
+        IRMutator mutator;
+        stmt = mutator.mutate(stmt);
+        IRPrinter printer;
+        string code = printer.print(stmt);
+        cout << code;
+    }
     return 0;
 }
