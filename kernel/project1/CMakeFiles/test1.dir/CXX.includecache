@@ -1,0 +1,38 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/Users/zhangjiashuo/Desktop/course/Compiler-Project/project1/kernels/kernel_case1.cc
+../run.h
+/Users/zhangjiashuo/Desktop/course/Compiler-Project/project1/run.h
+
+/Users/zhangjiashuo/Desktop/course/Compiler-Project/project1/kernels/kernel_case10.cc
+../run.h
+/Users/zhangjiashuo/Desktop/course/Compiler-Project/project1/run.h
+
+/Users/zhangjiashuo/Desktop/course/Compiler-Project/project1/kernels/kernel_case4.cc
+../run.h
+/Users/zhangjiashuo/Desktop/course/Compiler-Project/project1/run.h
+
+/Users/zhangjiashuo/Desktop/course/Compiler-Project/project1/kernels/kernel_case5.cc
+../run.h
+/Users/zhangjiashuo/Desktop/course/Compiler-Project/project1/run.h
+
+/Users/zhangjiashuo/Desktop/course/Compiler-Project/project1/kernels/kernel_case6.cc
+../run.h
+/Users/zhangjiashuo/Desktop/course/Compiler-Project/project1/run.h
+
+/Users/zhangjiashuo/Desktop/course/Compiler-Project/project1/kernels/kernel_case7.cc
+../run.h
+/Users/zhangjiashuo/Desktop/course/Compiler-Project/project1/run.h
+
+/Users/zhangjiashuo/Desktop/course/Compiler-Project/project1/kernels/kernel_example.cc
+../run.h
+/Users/zhangjiashuo/Desktop/course/Compiler-Project/project1/run.h
+
+/Users/zhangjiashuo/Desktop/course/Compiler-Project/project1/run.h
+

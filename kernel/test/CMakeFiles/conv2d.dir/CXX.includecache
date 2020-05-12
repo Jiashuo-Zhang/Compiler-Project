@@ -1,0 +1,24 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/Users/zhangjiashuo/Desktop/course/Compiler-Project/test/conv2d.cc
+string
+-
+iostream
+-
+IR.h
+/Users/zhangjiashuo/Desktop/course/Compiler-Project/test/IR.h
+IRMutator.h
+/Users/zhangjiashuo/Desktop/course/Compiler-Project/test/IRMutator.h
+IRVisitor.h
+/Users/zhangjiashuo/Desktop/course/Compiler-Project/test/IRVisitor.h
+IRPrinter.h
+/Users/zhangjiashuo/Desktop/course/Compiler-Project/test/IRPrinter.h
+type.h
+/Users/zhangjiashuo/Desktop/course/Compiler-Project/test/type.h
+
