@@ -23,10 +23,13 @@ int main(int argc, const char* argv[]) {
    // simpleVisitor visitor;
     //antlrcpp::Any p=visitor.visitStart(tree);
     Kernel2IRVisitor visitor;
-    auto p=visitor.visit(tree).as<vector<Stmt>>();
+    vector<Stmt> p=visitor.visit(tree).as<vector<Stmt>>();
+   
+   
     IRPrinter printer;
-   // Move a;
-    //printer.visit(a);
+    //std::string code = printer.print(kernel);
+    string code =printer.print(p[0]);
+    cout<<code<<endl;
     return 0;
 }
 

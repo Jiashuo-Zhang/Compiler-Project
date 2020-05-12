@@ -394,6 +394,10 @@ class Expr : public Ref<const ExprNode> {
     Expr mutate_expr(IRMutator *mutator) const {
         return this->get()->mutate_expr(mutator);
     }
+    Expr &operator=(const Expr &other) {
+        this->set_ptr(other.real_ptr());
+        return *this;
+    }
 
     /**
      * cast to other type of reference
