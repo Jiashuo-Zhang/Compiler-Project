@@ -28,12 +28,21 @@ include_directories(
   ${CMAKE_CURRENT_SOURCE_DIR}/antlr4-runtime/support
   ${CMAKE_CURRENT_SOURCE_DIR}/
   ${CMAKE_CURRENT_SOURCE_DIR}/libs/
+  ${CMAKE_CURRENT_SOURCE_DIR}/../include/
+)
+
+set(IRPrinter-SRC 
+  ${CMAKE_CURRENT_SOURCE_DIR}/../src/IR.cc
+  ${CMAKE_CURRENT_SOURCE_DIR}/../src/IRMutator.cc
+  ${CMAKE_CURRENT_SOURCE_DIR}/../src/IRPrinter.cc
+  ${CMAKE_CURRENT_SOURCE_DIR}/../src/IRVisitor.cc
 )
 
 set(antlr4-SRC 
   ${CMAKE_CURRENT_SOURCE_DIR}/main.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/Kernel2IRVisitor.cpp
   ${antlr4-GENERATED_SRC}
+  ${IRPrinter-SRC}
 )
 
 if (NOT CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
