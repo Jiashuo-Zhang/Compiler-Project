@@ -41,6 +41,8 @@ class IRPrinter : public IRVisitor {
         indent = 0;
         print_range = false;
         print_arg = false;
+        print_dom_begin = false;
+        print_dom_end = false;
     }
     std::string print(const Expr&);
     std::string print(const Stmt&);
@@ -82,6 +84,8 @@ class IRPrinter : public IRVisitor {
     int indent;
     bool print_range;
     bool print_arg;
+    bool print_dom_begin;
+    bool print_dom_end;
 };
 
 }  // namespace Internal

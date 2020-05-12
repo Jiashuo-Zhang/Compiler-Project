@@ -68,7 +68,7 @@ class Ref {
     template<typename U, typename std::enable_if<std::is_base_of<T, U>::value>::type* = nullptr>
     Ref(std::shared_ptr<U> _ptr) : ptr(_ptr) {}
 
-    bool defined() { return ptr != nullptr; }
+    bool defined() const { return ptr != nullptr; }
 
     T *get() const { return ptr.get(); }
 
@@ -393,6 +393,10 @@ class Expr : public Ref<const ExprNode> {
 
     Expr mutate_expr(IRMutator *mutator) const {
         return this->get()->mutate_expr(mutator);
+    }
+    Expr &operator=(const Expr &other) {
+        this->set_ptr(other.real_ptr());
+        return *this;
     }
 
     /**
