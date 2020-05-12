@@ -11,10 +11,10 @@
 using namespace std;
 using namespace antlr4;
 using namespace Boost::Internal;
+
 int main(int argc, const char* argv[]) {
     std::ifstream stream;
     stream.open("input.kernel");
-    
     ANTLRInputStream input(stream);
     kernelLexer lexer(&input);
     CommonTokenStream tokens(&lexer);
@@ -28,6 +28,9 @@ int main(int argc, const char* argv[]) {
     //vector<Stmt> stmtList = visitor.visit(tree).as<vector<Stmt> >();
     vector<Stmt> stmtList;
 
+    Type data_type = Type::float_scalar(32);
+    Type index_type = Type::int_scalar(32);
+
     const int N = 256;
     const int C = 1024;
     const int P = 7;
@@ -37,9 +40,6 @@ int main(int argc, const char* argv[]) {
     const int K = 1024;
     const int R = 3;
     const int S = 3;
-
-    Type index_type = Type::int_scalar(32);
-    Type data_type = Type::float_scalar(32);
 
     // index n
     Expr dom_n = Dom::make(index_type, 0, N);
