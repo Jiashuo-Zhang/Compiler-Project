@@ -7,19 +7,21 @@
 #include "antlr4-runtime.h"
 #include "kernelBaseVisitor.h"
 
-#include "../include/IR.h"
-#include "../include/IRMutator.h"
-#include "../include/IRVisitor.h"
-#include "../include/IRPrinter.h"
-#include "../include/type.h"
+#include "IR.h"
+#include "IRMutator.h"
+#include "IRVisitor.h"
+#include "IRPrinter.h"
+#include "type.h"
 using namespace Boost::Internal;
 using namespace std;
 using namespace antlr4;
-Type myindex_type = Type::int_scalar(32);
-Type mydata_type = Type::float_scalar(32);
+
 
 class Kernel2IRVisitor : public kernelBaseVisitor
 {
+    Type kernel_index_type = Type::int_scalar(32);
+    Type kernel_data_type = Type::float_scalar(32);
+    
     antlrcpp::Any visitStart(kernelParser::StartContext *ctx) override {
         cout<<"############## Begin Kernel2IRVisitor ! ############"<<endl;
         antlrcpp::Any p = visit(ctx->p());
@@ -89,16 +91,16 @@ class Kernel2IRVisitor : public kernelBaseVisitor
         Expr first=visit(ctx->rhs(0)).as<Expr>();
         Expr second=visit(ctx->rhs(1)).as<Expr>();
         int t=visit(ctx->rhsSecondCalc()).as<int>();
-       // Expr res;
-        Expr res=Binary::make(mydata_type,BinaryOpType::Add,first,second);
+        Expr res;
+        res=Expr(&Binary::make(kernel_data_type,BinaryOpType::Add,first,second));
         switch (t) {
             case 1:
-                //Expr res=Binary::make(mydata_type,BinaryOpType::Add,first,second);
+                //res=Expr(Binary::make(kernel_data_type,BinaryOpType::Add,first,second));
                 cout<<"+"<<endl;
                 return res;
                 break;
             case 2:
-                //res=Binary::make(mydata_type,BinaryOpType::Sub,first,second);
+                //res=Expr(Binary::make(kernel_data_type,BinaryOpType::Sub,first,second));
                 cout<<"-"<<endl;
                 break;
             default:
@@ -123,18 +125,18 @@ class Kernel2IRVisitor : public kernelBaseVisitor
         
         switch (t) {
             case 3:
-                //res=Binary::make(mydata_type,BinaryOpType::Mul,first,second);
+                //res=Binary::make(kernel_data_type,BinaryOpType::Mul,first,second);
                 cout<<"*"<<endl;
                 break;
             case 4:
-                //res=Binary::make(mydata_type,BinaryOpType::Div,first,second);
+                //res=Binary::make(kernel_data_type,BinaryOpType::Div,first,second);
                 cout<<"/"<<endl;
                 break;
             case 5:
-                //res=Binary::make(mydata_type,BinaryOpType::Mod,first,second);
+                //res=Binary::make(kernel_data_type,BinaryOpType::Mod,first,second);
                 cout<<"%"<<endl;
             case 6:
-                //res=Binary::make(myindex_type,BinaryOpType::Div,first,second);
+                //res=Binary::make(kernel_index_type,BinaryOpType::Div,first,second);
                 cout<<"/"<<"/"<<endl;
             default:
                 break;
@@ -184,7 +186,7 @@ class Kernel2IRVisitor : public kernelBaseVisitor
         vector<size_t> Clist=visit(ctx->clist()).as<vector<size_t>>();
         vector<Expr> Alist=visit(ctx->alist()).as<vector<Expr>>();
         Expr res;
-        //Expr res=Var::make(mydata_type,Id,Clist,Alist);
+        //Expr res=Var::make(kernel_data_type,Id,Clist,Alist);
         return res;
     }
     
@@ -193,7 +195,7 @@ class Kernel2IRVisitor : public kernelBaseVisitor
         vector<Expr> Clist=visit(ctx->clist()).as<vector<Expr>>();
         vector<size_t> Alist;
         Expr res;
-        //Expr res=Var::make(mydata_type,Id,Clist,Alist);
+        //Expr res=Var::make(kernel_data_type,Id,Clist,Alist);
         return res;
     }
     
@@ -289,13 +291,13 @@ class Kernel2IRVisitor : public kernelBaseVisitor
         Expr res;
         switch (t) {
             case 3:
-                //res=Binary::make(myindex_type,BinaryOpType::Mul,x,first,second);
+                //res=Binary::make(kernel_index_type,BinaryOpType::Mul,x,first,second);
                 break;
             case 4:
-                //res=Binary::make(myindex_type,BinaryOpType::Div,x,first,second);
+                //res=Binary::make(kernel_index_type,BinaryOpType::Div,x,first,second);
                 break;
             case 5:
-                //res=Binary::make(myindex_type,BinaryOpType::Mod,x,first,second);
+                //res=Binary::make(kernel_index_type,BinaryOpType::Mod,x,first,second);
                 break;
             default:
                 break;
@@ -307,7 +309,7 @@ class Kernel2IRVisitor : public kernelBaseVisitor
         Expr first=visit(ctx->idExpr(0)).as<Expr>();
         Expr second=visit(ctx->idExpr(1)).as<Expr>();
         Expr res;
-        //res=Binary::make(myindex_type,BinaryOpType::Add,x,first,second);
+        //res=Binary::make(kernel_index_type,BinaryOpType::Add,x,first,second);
         return res;
     }
     
@@ -323,10 +325,10 @@ class Kernel2IRVisitor : public kernelBaseVisitor
         Expr res;
         switch (t) {
             case 1:
-                //res=Binary::make(myindex_type,BinaryOpType::Add,x,first,second);
+                //res=Binary::make(kernel_index_type,BinaryOpType::Add,x,first,second);
                 break;
             case 2:
-                //res=Binary::make(myindex_type,BinaryOpType::Sub,x,first,second);
+                //res=Binary::make(kernel_index_type,BinaryOpType::Sub,x,first,second);
                 break;
             default:
                 break;
@@ -336,8 +338,8 @@ class Kernel2IRVisitor : public kernelBaseVisitor
     
     antlrcpp::Any visitOneId(kernelParser::OneIdContext *ctx) override {
         Expr p;
-        //Expr dom_p = Dom::make(myindex_type, 0, 0);
-        //Expr p = Index::make(myindex_type,ctx->Id()->getText(), dom_p, IndexType::Spatial);
+        //Expr dom_p = Dom::make(kernel_index_type, 0, 0);
+        //Expr p = Index::make(kernel_index_type,ctx->Id()->getText(), dom_p, IndexType::Spatial);
         return p;
     }
     
