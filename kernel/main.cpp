@@ -3,8 +3,11 @@
 #include "antlr4-runtime/kernelLexer.h"
 #include "antlr4-runtime/kernelParser.h"
 #include "Kernel2IRVisitor.h"
+
+#include "IR.h"
 using namespace std;
 using namespace antlr4;
+using namespace Boost::Internal;
 int main(int argc, const char* argv[]) {
     std::ifstream stream;
     stream.open("input.kernel");
