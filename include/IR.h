@@ -721,10 +721,11 @@ class Var : public ExprNode, public std::enable_shared_from_this<Var> {
     std::vector<Expr> args;
     // TODO: this may need to be removed to other class
     std::vector<size_t> shape;
+    int *id;
 
     Var(Type _type, const std::string &_name, const std::vector<Expr> &_args,
         const std::vector<size_t> &_shape) : ExprNode(_type, IRNodeType::Var),
-        name(_name), args(_args), shape(_shape) {}
+        name(_name), args(_args), shape(_shape), id(new int(0)) {}
 
     Expr mutate_expr(IRMutator *mutator) const;
     void visit_node(IRVisitor *visitor) const;

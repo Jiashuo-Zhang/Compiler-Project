@@ -24,9 +24,9 @@ int main(int argc, const char* argv[]) {
     //antlrcpp::Any p=visitor.visitStart(tree);
     //simpleVisitor visitor;
     //antlrcpp::Any p=visitor.visitStart(tree);
-    //Kernel2IRVisitor visitor;
-    //vector<Stmt> stmtList = visitor.visit(tree).as<vector<Stmt> >();
-    vector<Stmt> stmtList;
+    Kernel2IRVisitor visitor;
+    vector<Stmt> stmtList = visitor.visit(tree).as<vector<Stmt> >();
+    /*vector<Stmt> stmtList;
 
     Type data_type = Type::float_scalar(32);
     Type index_type = Type::int_scalar(32);
@@ -97,11 +97,21 @@ int main(int argc, const char* argv[]) {
         MoveType::MemToMem
     );
 
-    stmtList.push_back(main_stmt);
+    stmtList.push_back(main_stmt);*/
 
     for (auto stmt : stmtList) {
         IRVisitor visitor;
         stmt.visit_stmt(&visitor);
+        for (auto tmp : visitor.boundTable)
+            cout << tmp.first << " [" << tmp.second.first <<  ", " << tmp.second.second << ")" << endl;
+        cout << endl;
+        for (size_t i = 0; i < visitor.indexTable.size(); ++i) {
+            cout << i << " {";
+            for (auto tmp2 : visitor.indexTable[i])
+                cout << tmp2 << ", ";
+            cout << "$}" << endl;
+        }
+        cout << endl;
         IRMutator mutator;
         stmt = mutator.mutate(stmt);
         IRPrinter printer;

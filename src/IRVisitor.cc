@@ -30,6 +30,8 @@ namespace Internal {
 
 
 void IRVisitor::visit(Ref<const IntImm> op) {
+    if (inIndex)
+        imm = op->value();
     return;
 }
 
@@ -56,8 +58,72 @@ void IRVisitor::visit(Ref<const Unary> op) {
 
 
 void IRVisitor::visit(Ref<const Binary> op) {
-    (op->a).visit_expr(this);
-    (op->b).visit_expr(this);
+    if (inIndex) {
+        bool isImm = false;
+        //printf("%d %d\n", (op->a).node_type(), (op->b).node_type());
+        //printf("%d\n",op->op_type);
+        isImm = ((op->b).node_type() == IRNodeType::IntImm);
+        if (isImm) {
+            (op->b).visit_expr(this);
+            if (op->op_type == BinaryOpType::Add) {
+                pair<int,int> tmp = currentBound;
+                currentBound.first -= imm;
+                currentBound.second -= imm;
+                (op->a).visit_expr(this);
+                currentBound = tmp;
+            } else if (op->op_type == BinaryOpType::Sub) {
+                pair<int,int> tmp = currentBound;
+                currentBound.first += imm;
+                currentBound.second += imm;
+                (op->a).visit_expr(this);
+                currentBound = tmp;
+            } else if (op->op_type == BinaryOpType::Mul) {
+                pair<int,int> tmp = currentBound;
+                if (imm < 0) {
+                    imm = -imm;
+                    int tmpa, tmpb;
+                    tmpa = currentBound.second;
+                    tmpb = currentBound.first;
+                    currentBound.first = -tmpb + 1;
+                    currentBound.second = -tmpa + 1;
+                }
+                currentBound.first /= imm;
+                currentBound.second = (currentBound.second + imm - 1) / imm;
+                (op->a).visit_expr(this);
+                currentBound = tmp;
+            } else if (op->op_type == BinaryOpType::Div) {
+                pair<int,int> tmp = currentBound;
+                if (imm < 0) {
+                    imm = -imm;
+                    int tmpa, tmpb;
+                    tmpa = currentBound.second;
+                    tmpb = currentBound.first;
+                    currentBound.first = -tmpb + 1;
+                    currentBound.second = -tmpa + 1;
+                }
+                if (currentBound.first >= 0)
+                    currentBound.first *= imm;
+                else
+                    currentBound.first = currentBound.first * imm - imm + 1;
+                if (currentBound.second > 0)
+                    currentBound.second *= imm;
+                else
+                    currentBound.second = currentBound.second * imm - imm + 1;
+                (op->a).visit_expr(this);
+                currentBound = tmp;
+            } else if (op->op_type == BinaryOpType::Mod) {
+                isUpdate = false;
+                (op->a).visit_expr(this);
+                isUpdate = true;
+            }
+        } else {
+            (op->a).visit_expr(this);
+            (op->b).visit_expr(this);
+        }
+    } else {
+        (op->a).visit_expr(this);
+        (op->b).visit_expr(this);
+    }
     return;
 }
 
@@ -98,9 +164,21 @@ void IRVisitor::visit(Ref<const Ramp> op) {
 
 
 void IRVisitor::visit(Ref<const Var> op) {
-    for (auto arg : op->args) {
-        arg.visit_expr(this);
+    set<string> s;
+    for (size_t i = 0; i < op->args.size(); ++i) {
+        currentBound = pair<int,int>(0, op->shape[i]);
+        currentIndexSet.clear();
+        inIndex = true;
+        isUpdate = true;
+        op->args[i].visit_expr(this);
+        isUpdate = true;
+        inIndex = false;
+        s.insert(currentIndexSet.begin(), currentIndexSet.end());
     }
+    *(op->id) = varCnt;
+    cout << op->name << ' ' << *(op->id) << endl;
+    indexTable.push_back(s);
+    ++varCnt;
     return;
 }
 
@@ -113,6 +191,18 @@ void IRVisitor::visit(Ref<const Dom> op) {
 
 
 void IRVisitor::visit(Ref<const Index> op) {
+    currentIndexSet.insert(op->name);
+    if (isUpdate) {
+        auto iter = boundTable.find(op->name);
+        if (iter == boundTable.end())
+            boundTable.insert(make_pair(op->name, currentBound));
+        else {
+            pair<int, int> tmp = iter->second;
+            tmp.first = max(tmp.first, currentBound.first);
+            tmp.second = min(tmp.second, currentBound.second);
+            boundTable[op->name] = tmp;
+        }
+    }
     (op->dom).visit_expr(this);
     return;
 }
@@ -138,6 +228,7 @@ void IRVisitor::visit(Ref<const IfThenElse> op) {
 
 
 void IRVisitor::visit(Ref<const Move> op) {
+    varCnt = 0;
     (op->dst).visit_expr(this);
     (op->src).visit_expr(this);
     return;

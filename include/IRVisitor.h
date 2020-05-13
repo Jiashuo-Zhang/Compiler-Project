@@ -26,6 +26,11 @@
 #define BOOST_IRVISITOR_H
 
 #include "IR.h"
+#include <map>
+#include <set>
+#include <cstring>
+
+using namespace std;
 
 
 namespace Boost {
@@ -52,6 +57,12 @@ class IRVisitor {
     virtual void visit(Ref<const IfThenElse>);
     virtual void visit(Ref<const Move>);
     virtual void visit(Ref<const Kernel>);
+    map<string, pair<int,int> > boundTable;
+    vector<set<string> > indexTable;
+    set<string> currentIndexSet;
+    pair<int,int> currentBound;
+    bool inIndex, isUpdate;
+    int imm, varCnt;
  private:
 };
 
