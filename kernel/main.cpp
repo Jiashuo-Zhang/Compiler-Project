@@ -113,6 +113,7 @@ int main(int argc, const char* argv[]) {
         }
         cout << endl;
         IRMutator mutator;
+        mutator.boundTable = visitor.boundTable;
         stmt = mutator.mutate(stmt);
         IRPrinter printer;
         string code = printer.print(stmt);

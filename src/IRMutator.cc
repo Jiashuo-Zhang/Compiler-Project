@@ -24,66 +24,130 @@
 
 #include "IRMutator.h"
 
+using namespace antlr4;
+
 namespace Boost {
 
 namespace Internal {
 
-Expr IRMutator::mutate(const Expr &expr) {
+antlrcpp::Any IRMutator::mutate(const Expr &expr) {
     return expr.mutate_expr(this);
 }
 
 
-Stmt IRMutator::mutate(const Stmt &stmt) {
+antlrcpp::Any IRMutator::mutate(const Stmt &stmt) {
     return stmt.mutate_stmt(this);
 }
 
 
-Group IRMutator::mutate(const Group &group) {
+antlrcpp::Any IRMutator::mutate(const Group &group) {
     return group.mutate_group(this);
 }
 
 
-Expr IRMutator::visit(Ref<const IntImm> op) {
+antlrcpp::Any IRMutator::visit(Ref<const IntImm> op) {
     return op;
 }
 
 
-Expr IRMutator::visit(Ref<const UIntImm> op) {
+antlrcpp::Any IRMutator::visit(Ref<const UIntImm> op) {
     return op;
 }
 
 
-Expr IRMutator::visit(Ref<const FloatImm> op) {
+antlrcpp::Any IRMutator::visit(Ref<const FloatImm> op) {
     return op;
 }
 
 
-Expr IRMutator::visit(Ref<const StringImm> op) {
+antlrcpp::Any IRMutator::visit(Ref<const StringImm> op) {
     return op;
 }
 
 
-Expr IRMutator::visit(Ref<const Unary> op) {
+antlrcpp::Any IRMutator::visit(Ref<const Unary> op) {
     Expr new_a = mutate(op->a);
     return Unary::make(op->type(), op->op_type, new_a);
 }
 
 
-Expr IRMutator::visit(Ref<const Binary> op) {
-    Expr new_a = mutate(op->a);
-    Expr new_b = mutate(op->b);
-    return Binary::make(op->type(), op->op_type, new_a, new_b);
+antlrcpp::Any IRMutator::visit(Ref<const Binary> op) { /**/
+    /*std::cout << (int)op->op_type << "op {";
+    for (auto s : *(op->usedIndex))
+        std::cout << s << ", ";
+    std::cout << "$}" << std::endl;*/
+    if (!inIndex) {
+        if (!inFactor) {
+            if (op->op_type == BinaryOpType::And || op->op_type == BinaryOpType::Sub) {
+                currentIDTable.clear();
+                currentExprBound.clear();
+                vector<Stmt> new_a = mutate(op->a).as<vector<Stmt> >();
+                currentIDTable.clear();
+                currentExprBound.clear();
+                vector<Stmt> new_b = mutate(op->b).as<vector<Stmt> >();
+                currentIDTable.clear();
+                currentExprBound.clear();
+                vector<Stmt> res;
+                for (Stmt s : new_a)
+                    res.push_back(s);
+                for (Stmt s : new_b)
+                    res.push_back(s);
+                return res;
+            } else {
+                currentIDTable.clear();
+                currentExprBound.clear();
+                inFactor = true;
+                Expr new_a = mutate(op->a).as<Expr>();
+                Expr new_b = mutate(op->b).as<Expr>();
+                inFactor = false;
+                
+                vector<Expr> currentID;
+                for (auto p : leftIDTable)
+                    if (isLeftID.find(p.first) == isLeftID.end())
+                        currentID.push_back(p.second);
+                
+                Expr bin = Binary::make(op->type(), op->op_type, new_a, new_b);
+                Stmt body = Move::make(temp, Binary::make(data_type, BinaryOpType::Add, temp, bin), MoveType::MemToMem);
+
+                size_t len = currentExprBound.size();
+                for (size_t i = 0; i < len; ++i) {
+                    Expr tmp1 = Compare::make(index_type, CompareOpType::GE, currentExprBound[i].first, Expr(0));
+                    Expr tmp2 = Compare::make(index_type, CompareOpType::LT, currentExprBound[i].first, Expr(currentExprBound[i].second));
+                    Expr tmp = Binary::make(index_type, BinaryOpType::And, tmp1, tmp2);
+                    body = IfThen::make(tmp, {body});
+                }
+
+                if (currentID.size() > 0)
+                    body = LoopNest::make(currentID, {body});
+
+                currentIDTable.clear();
+                currentExprBound.clear();
+                
+                vector<Stmt> res;
+                res.push_back(body);
+                return res;
+            }
+        } else {
+            Expr new_a = mutate(op->a).as<Expr>();
+            Expr new_b = mutate(op->b).as<Expr>();
+            return Binary::make(op->type(), op->op_type, new_a, new_b);
+        }
+    } else {
+        Expr new_a = mutate(op->a).as<Expr>();
+        Expr new_b = mutate(op->b).as<Expr>();
+        return Binary::make(op->type(), op->op_type, new_a, new_b);
+    }
 }
 
 
-Expr IRMutator::visit(Ref<const Compare> op) {
+antlrcpp::Any IRMutator::visit(Ref<const Compare> op) {
     Expr new_a = mutate(op->a);
     Expr new_b = mutate(op->b);
     return Compare::make(op->type(), op->op_type, new_a, new_b);
 }
 
 
-Expr IRMutator::visit(Ref<const Select> op) {
+antlrcpp::Any IRMutator::visit(Ref<const Select> op) {
     Expr new_cond = mutate(op->cond);
     Expr new_true_value = mutate(op->true_value);
     Expr new_false_value = mutate(op->false_value);
@@ -91,7 +155,7 @@ Expr IRMutator::visit(Ref<const Select> op) {
 }
 
 
-Expr IRMutator::visit(Ref<const Call> op) {
+antlrcpp::Any IRMutator::visit(Ref<const Call> op) {
     std::vector<Expr> new_args;
     for (auto arg : op->args) {
         new_args.push_back(mutate(arg));
@@ -101,41 +165,68 @@ Expr IRMutator::visit(Ref<const Call> op) {
 }
 
 
-Expr IRMutator::visit(Ref<const Cast> op) {
+antlrcpp::Any IRMutator::visit(Ref<const Cast> op) {
     Expr new_val = mutate(op->val);
     return Cast::make(op->type(), op->new_type, new_val);
 }
 
 
-Expr IRMutator::visit(Ref<const Ramp> op) {
+antlrcpp::Any IRMutator::visit(Ref<const Ramp> op) {
     Expr new_base = mutate(op->base);
     return Ramp::make(op->type(), new_base, op->stride, op->lanes);
 }
 
 
-Expr IRMutator::visit(Ref<const Var> op) {
+antlrcpp::Any IRMutator::visit(Ref<const Var> op) { /**/
+    /*std::cout << *(op->id) << " {";
+    for (auto s : *(op->usedIndex))
+        std::cout << s << ", ";
+    std::cout << "$}" << std::endl;*/
     std::vector<Expr> new_args;
-    for (auto arg : op->args) {
-        new_args.push_back(mutate(arg));
+    for (size_t i = 0; i < op->args.size(); ++i) {
+        inIndex = true;
+        Expr tmp = mutate(op->args[i]).as<Expr>();
+        inIndex = false;
+        new_args.push_back(tmp);
+        currentExprBound.push_back(make_pair(tmp, op->shape[i]));
     }
-    return Var::make(op->type(), op->name, new_args, op->shape);
+    if (isLeft) {
+        temp = Var::make(op->type(), "temp", new_args, op->shape);
+        return Var::make(op->type(), op->name, new_args, op->shape);
+    } else {
+        if (!inFactor) {
+            Expr var = Var::make(op->type(), op->name, new_args, op->shape);
+            Expr bin = Binary::make(data_type, BinaryOpType::Add, temp, var);
+            Stmt s = Move::make(temp, bin, MoveType::MemToMem);
+            vector<Stmt> vec;
+            vec.push_back(s);
+            return vec;
+        }
+        return Var::make(op->type(), op->name, new_args, op->shape);
+    }
 }
 
 
-Expr IRMutator::visit(Ref<const Dom> op) {
+antlrcpp::Any IRMutator::visit(Ref<const Dom> op) {
     Expr new_begin = mutate(op->begin);
     Expr new_extent = mutate(op->extent);
     return Dom::make(op->type(), new_begin, new_extent);
 }
 
 
-Expr IRMutator::visit(Ref<const Index> op) {
-    Expr new_dom = mutate(op->dom);
-    return Index::make(op->type(), op->name, new_dom, op->index_type);
+antlrcpp::Any IRMutator::visit(Ref<const Index> op) { /**/
+    pair<int, int> pii = boundTable[op->name];
+    Expr new_dom = Dom::make(op->dom->type(), Expr(pii.first), Expr(pii.second));
+    Expr res = Index::make(op->type(), op->name, new_dom, op->index_type);
+    if (isLeft)
+        leftIDTable.insert(make_pair(op->name, res));
+    else
+        currentIDTable.insert(make_pair(op->name, res));
+    return res;
 }
 
 
-Stmt IRMutator::visit(Ref<const LoopNest> op) {
+antlrcpp::Any IRMutator::visit(Ref<const LoopNest> op) {
     std::vector<Expr> new_index_list;
     std::vector<Stmt> new_body_list;
     for (auto index : op->index_list) {
@@ -148,22 +239,64 @@ Stmt IRMutator::visit(Ref<const LoopNest> op) {
 }
 
 
-Stmt IRMutator::visit(Ref<const IfThenElse> op) {
+antlrcpp::Any IRMutator::visit(Ref<const IfThenElse> op) {
     Expr new_cond = mutate(op->cond);
     Stmt new_true_case = mutate(op->true_case);
     Stmt new_false_case = mutate(op->false_case);
     return IfThenElse::make(new_cond, new_true_case, new_false_case);
 }
 
+antlrcpp::Any IRMutator::visit(Ref<const IfThen> op) { /**/
+    return op;
+}
 
-Stmt IRMutator::visit(Ref<const Move> op) {
-    Expr new_dst = mutate(op->dst);
-    Expr new_src = mutate(op->src);
-    return Move::make(new_dst, new_src, op->move_type);
+antlrcpp::Any IRMutator::visit(Ref<const Move> op) { /**/
+    inIndex = false;
+    isLeft = true;
+    currentExprBound.clear();
+    Expr new_dst = mutate(op->dst).as<Expr>();
+    isLeft = false;
+    vector<Expr> leftID;
+    for (auto p : leftIDTable) {
+        leftID.push_back(p.second);
+        isLeftID.insert(p.first);
+    }
+    vector<pair<Expr, int> > vec;
+    vec.assign(currentExprBound.begin(), currentExprBound.end());
+    currentExprBound.clear();
+    Stmt init = Move::make(temp, Expr(0), op->move_type);
+
+    inFactor = false;
+    vector<Stmt> bodyList = mutate(op->src).as<vector<Stmt> >();
+    bodyList.insert(bodyList.begin(), init);
+    Stmt loadAtIndex = Move::make(new_dst, temp, op->move_type);
+
+    size_t len = vec.size();
+    Expr cond1 = Compare::make(index_type, CompareOpType::GE, vec[0].first, Expr(0));
+    Expr cond2 = Compare::make(index_type, CompareOpType::LT, vec[0].first, Expr(vec[0].second));
+    Expr cond = Binary::make(index_type, BinaryOpType::And, cond1, cond2);
+    Stmt boundedBody = IfThen::make(cond, bodyList);
+    loadAtIndex = IfThen::make(cond, {loadAtIndex});
+
+    for (size_t i = 1; i < len; ++i) {
+        Expr tmp1 = Compare::make(index_type, CompareOpType::GE, vec[i].first, Expr(0));
+        Expr tmp2 = Compare::make(index_type, CompareOpType::LT, vec[i].first, Expr(vec[i].second));
+        Expr tmp = Binary::make(index_type, BinaryOpType::And, tmp1, tmp2);
+        boundedBody = IfThen::make(tmp, {boundedBody});
+        loadAtIndex = IfThen::make(tmp, {loadAtIndex});
+    }
+
+    Stmt store = LoopNest::make(leftID, {boundedBody});
+    Stmt load = LoopNest::make(leftID, {loadAtIndex});
+
+    vector<Stmt> stmtList;
+    stmtList.push_back(store);
+    stmtList.push_back(load);
+    return stmtList;
 }
 
 
-Group IRMutator::visit(Ref<const Kernel> op) {
+antlrcpp::Any IRMutator::visit(Ref<const Kernel> op) {
     std::vector<Expr> new_inputs;
     for (auto expr : op->inputs) {
         new_inputs.push_back(mutate(expr));

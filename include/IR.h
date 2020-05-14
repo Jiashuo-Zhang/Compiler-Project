@@ -31,6 +31,10 @@
 #include "type.h"
 #include "arith.h"
 #include "debug.h"
+#include <set>
+#include "antlr4-runtime.h"
+
+using namespace antlr4;
 
 namespace Boost {
 
@@ -112,6 +116,7 @@ enum class IRNodeType : short {
     // Stmts
     LoopNest,
     IfThenElse,
+    IfThen,
     Move,
     // Exprs
     Unary,
@@ -172,11 +177,12 @@ class ExprNode : public IRNode {
  private:
     Type type_;
  public:
-    ExprNode(Type _type, const IRNodeType node_type) : IRNode(node_type), type_(_type) {} 
+    std::set<std::string> *usedIndex;
+    ExprNode(Type _type, const IRNodeType node_type) : IRNode(node_type), type_(_type), usedIndex(new std::set<std::string>()) {} 
 
     virtual ~ExprNode() = default;
 
-    virtual Expr mutate_expr(IRMutator *mutator) const = 0;
+    virtual antlrcpp::Any mutate_expr(IRMutator *mutator) const = 0;
 
     Type type() const {
         return type_;
@@ -195,7 +201,7 @@ class StmtNode : public IRNode {
 
     virtual ~StmtNode() = default;
 
-    virtual Stmt mutate_stmt(IRMutator *mutator) const = 0;
+    virtual antlrcpp::Any mutate_stmt(IRMutator *mutator) const = 0;
 };
 
 
@@ -210,7 +216,7 @@ class GroupNode : public IRNode {
 
     virtual ~GroupNode() = default;
 
-    virtual Group mutate_group(IRMutator *mutator) const = 0;
+    virtual antlrcpp::Any mutate_group(IRMutator *mutator) const = 0;
 };
 
 
@@ -230,7 +236,7 @@ class IntImm : public ExprNode, public std::enable_shared_from_this<IntImm> {
         return value_;
     }
 
-    Expr mutate_expr(IRMutator *mutator) const;
+    antlrcpp::Any mutate_expr(IRMutator *mutator) const;
     void visit_node(IRVisitor *visitor) const;
 
     static Ref<const IntImm> make(Type t, const int64_t _value) {
@@ -257,7 +263,7 @@ class UIntImm : public ExprNode, public std::enable_shared_from_this<UIntImm> {
         return value_;
     }
 
-    Expr mutate_expr(IRMutator *mutator) const;
+    antlrcpp::Any mutate_expr(IRMutator *mutator) const;
     void visit_node(IRVisitor *visitor) const;
 
     static Ref<const UIntImm> make(Type t, const uint64_t _value) {
@@ -284,7 +290,7 @@ class FloatImm : public ExprNode, public std::enable_shared_from_this<FloatImm> 
         return value_;
     }
 
-    Expr mutate_expr(IRMutator *mutator) const;
+    antlrcpp::Any mutate_expr(IRMutator *mutator) const;
     void visit_node(IRVisitor *visitor) const;
 
     static Ref<const FloatImm> make(Type t, const double _value) {
@@ -309,7 +315,7 @@ class StringImm : public ExprNode, public std::enable_shared_from_this<StringImm
         return value_;
     }
 
-    Expr mutate_expr(IRMutator *mutator) const;
+    antlrcpp::Any mutate_expr(IRMutator *mutator) const;
     void visit_node(IRVisitor *visitor) const;
 
     static Ref<const StringImm> make(Type t, const std::string _value) {
@@ -391,7 +397,7 @@ class Expr : public Ref<const ExprNode> {
         return this->get()->visit_node(visitor);
     }
 
-    Expr mutate_expr(IRMutator *mutator) const {
+    antlrcpp::Any mutate_expr(IRMutator *mutator) const {
         return this->get()->mutate_expr(mutator);
     }
     Expr &operator=(const Expr &other) {
@@ -447,7 +453,7 @@ class Stmt : public Ref<const StmtNode> {
         return this->get()->visit_node(visitor);
     }
 
-    Stmt mutate_stmt(IRMutator *mutator) const {
+    antlrcpp::Any mutate_stmt(IRMutator *mutator) const {
         return this->get()->mutate_stmt(mutator);
     }
 
@@ -499,7 +505,7 @@ class Group : public Ref<const GroupNode> {
         return this->get()->visit_node(visitor);
     }
 
-    Group mutate_group(IRMutator *mutator) const {
+    antlrcpp::Any mutate_group(IRMutator *mutator) const {
         return this->get()->mutate_group(mutator);
     }
 
@@ -533,7 +539,7 @@ class Unary : public ExprNode, public std::enable_shared_from_this<Unary> {
     Unary(Type _type, UnaryOpType _op_type, Expr _a) : ExprNode(_type, IRNodeType::Unary),
         op_type(_op_type), a(_a) {}
 
-    Expr mutate_expr(IRMutator *mutator) const;
+    antlrcpp::Any mutate_expr(IRMutator *mutator) const;
     void visit_node(IRVisitor *visitor) const;
 
     static Expr make(Type t, UnaryOpType _op_type, Expr _a) {
@@ -566,7 +572,7 @@ class Binary : public ExprNode, public std::enable_shared_from_this<Binary> {
     Binary(Type _type, BinaryOpType _op_type, Expr _a, Expr _b) : ExprNode(_type, IRNodeType::Binary),
         op_type(_op_type), a(_a), b(_b) {}
 
-    Expr mutate_expr(IRMutator *mutator) const;
+    antlrcpp::Any mutate_expr(IRMutator *mutator) const;
     void visit_node(IRVisitor *visitor) const;
 
     static Expr make(Type t, BinaryOpType _op_type, Expr _a, Expr _b) {
@@ -598,7 +604,7 @@ class Compare : public ExprNode, public std::enable_shared_from_this<Compare> {
     Compare(Type _type, CompareOpType _op_type, Expr _a, Expr _b) : ExprNode(_type, IRNodeType::Compare),
         op_type(_op_type), a(_a), b(_b) {}
 
-    Expr mutate_expr(IRMutator *mutator) const;
+    antlrcpp::Any mutate_expr(IRMutator *mutator) const;
     void visit_node(IRVisitor *visitor) const;
 
     static Expr make(Type t, CompareOpType _op_type, Expr _a, Expr _b) {
@@ -620,7 +626,7 @@ class Select : public ExprNode, public std::enable_shared_from_this<Select> {
     Select(Type _type, Expr _cond, Expr _true_value, Expr _false_value) : ExprNode(_type, IRNodeType::Select),
         cond(_cond), true_value(_true_value), false_value(_false_value) {}
 
-    Expr mutate_expr(IRMutator *mutator) const;
+    antlrcpp::Any mutate_expr(IRMutator *mutator) const;
     void visit_node(IRVisitor *visitor) const;
 
     static Expr make(Type t, Expr _cond, Expr _true_value, Expr _false_value) {
@@ -649,7 +655,7 @@ class Call : public ExprNode, public std::enable_shared_from_this<Call> {
     Call(Type _type, const std::vector<Expr> &_args, const std::string &_func_name, CallType _call_type) : ExprNode(_type, IRNodeType::Call),
         args(_args), func_name(_func_name), call_type(_call_type) {}
 
-    Expr mutate_expr(IRMutator *mutator) const;
+    antlrcpp::Any mutate_expr(IRMutator *mutator) const;
     void visit_node(IRVisitor *visitor) const;
     
     static Expr make(Type t, const std::vector<Expr> &_args, const std::string &_func_name, CallType _call_type) {
@@ -671,7 +677,7 @@ class Cast : public ExprNode, public std::enable_shared_from_this<Cast> {
     Cast(Type _type, Type _new_type, Expr _val) : ExprNode(_type, IRNodeType::Cast),
         new_type(_new_type), val(_val) {}
 
-    Expr mutate_expr(IRMutator *mutator) const;
+    antlrcpp::Any mutate_expr(IRMutator *mutator) const;
     void visit_node(IRVisitor *visitor) const;
 
     static Expr make(Type t, Type _new_type, Expr _val) {
@@ -695,7 +701,7 @@ class Ramp : public ExprNode, public std::enable_shared_from_this<Ramp> {
     Ramp(Type _type, Expr _base, uint16_t _stride, uint16_t _lanes) : ExprNode(_type, IRNodeType::Ramp),
         base(_base), stride(_stride), lanes(_lanes) {}
 
-    Expr mutate_expr(IRMutator *mutator) const;
+    antlrcpp::Any mutate_expr(IRMutator *mutator) const;
     void visit_node(IRVisitor *visitor) const;
 
     static Expr make(Type t, Expr _base, uint16_t _stride, uint16_t _lanes) {
@@ -727,7 +733,7 @@ class Var : public ExprNode, public std::enable_shared_from_this<Var> {
         const std::vector<size_t> &_shape) : ExprNode(_type, IRNodeType::Var),
         name(_name), args(_args), shape(_shape), id(new int(0)) {}
 
-    Expr mutate_expr(IRMutator *mutator) const;
+    antlrcpp::Any mutate_expr(IRMutator *mutator) const;
     void visit_node(IRVisitor *visitor) const;
 
     static Expr make(Type t, const std::string &_name, const std::vector<Expr> &_args,
@@ -749,7 +755,7 @@ class Dom : public ExprNode, public std::enable_shared_from_this<Dom> {
 
     Dom(Type _type, Expr _begin, Expr _extent) : ExprNode(_type, IRNodeType::Dom), begin(_begin), extent(_extent) {}
 
-    Expr mutate_expr(IRMutator *mutator) const;
+    antlrcpp::Any mutate_expr(IRMutator *mutator) const;
     void visit_node(IRVisitor *visitor) const;
     
     static Expr make(Type t, Expr _begin, Expr _extent) {
@@ -782,7 +788,7 @@ class Index : public ExprNode, public std::enable_shared_from_this<Index> {
     Index(Type _type, const std::string &_name, Expr _dom, IndexType _index_type) :
         ExprNode(_type, IRNodeType::Index), name(_name), dom(_dom), index_type(_index_type) {}
 
-    Expr mutate_expr(IRMutator *mutator) const;
+    antlrcpp::Any mutate_expr(IRMutator *mutator) const;
     void visit_node(IRVisitor *visitor) const;
 
     static Expr make(Type t, const std::string &_name, Expr _dom, IndexType _index_type) {
@@ -805,7 +811,7 @@ class LoopNest : public StmtNode, public std::enable_shared_from_this<LoopNest> 
     LoopNest(const std::vector<Expr> &_index_list, const std::vector<Stmt> &_body_list) :
         StmtNode(IRNodeType::LoopNest), index_list(_index_list), body_list(_body_list) {}
 
-    Stmt mutate_stmt(IRMutator *mutator) const;
+    antlrcpp::Any mutate_stmt(IRMutator *mutator) const;
     void visit_node(IRVisitor *visitor) const;
 
     static Stmt make(const std::vector<Expr> &_index_list, const std::vector<Stmt> &_body_list) {
@@ -828,7 +834,7 @@ class IfThenElse : public StmtNode, public std::enable_shared_from_this<IfThenEl
     IfThenElse(Expr _cond, Stmt _true_case, Stmt _false_case) :
         StmtNode(IRNodeType::IfThenElse), cond(_cond), true_case(_true_case), false_case(_false_case) {}
 
-    Stmt mutate_stmt(IRMutator *mutator) const;
+    antlrcpp::Any mutate_stmt(IRMutator *mutator) const;
     void visit_node(IRVisitor *visitor) const;
     
     static Stmt make(Expr _cond, Stmt _true_case, Stmt _false_case) {
@@ -836,6 +842,27 @@ class IfThenElse : public StmtNode, public std::enable_shared_from_this<IfThenEl
     }
 
     static const IRNodeType node_type_ = IRNodeType::IfThenElse;
+};
+
+/**
+ * branch statement (modified)
+ */ 
+class IfThen : public StmtNode, public std::enable_shared_from_this<IfThen> {
+ public:
+    Expr cond;
+    std::vector<Stmt> body_list;
+
+    IfThen(Expr _cond, const std::vector<Stmt> &_body_list) :
+        StmtNode(IRNodeType::IfThen), cond(_cond), body_list(_body_list) {}
+
+    antlrcpp::Any mutate_stmt(IRMutator *mutator) const;
+    void visit_node(IRVisitor *visitor) const;
+    
+    static Stmt make(Expr _cond, const std::vector<Stmt> &_body_list) {
+        return std::make_shared<const IfThen>(_cond, _body_list);
+    }
+
+    static const IRNodeType node_type_ = IRNodeType::IfThen;
 };
 
 
@@ -868,7 +895,7 @@ class Move : public StmtNode, public std::enable_shared_from_this<Move> {
     Move(Expr _dst, Expr _src, MoveType _move_type) :
         StmtNode(IRNodeType::Move), dst(_dst), src(_src), move_type(_move_type) {}
 
-    Stmt mutate_stmt(IRMutator *mutator) const;
+    antlrcpp::Any mutate_stmt(IRMutator *mutator) const;
     void visit_node(IRVisitor *visitor) const;
     
     static Stmt make(Expr _dst, Expr _src, MoveType _move_type) {
@@ -898,7 +925,7 @@ class Kernel : public GroupNode, public std::enable_shared_from_this<Kernel> {
         GroupNode(IRNodeType::Kernel), name(_name), inputs(_inputs), outputs(_outputs),
         stmt_list(_stmt_list), kernel_type(_kernel_type) {}
 
-    Group mutate_group(IRMutator *mutator) const;
+    antlrcpp::Any mutate_group(IRMutator *mutator) const;
     void visit_node(IRVisitor *visitor) const;
     
     static Group make(const std::string &_name, const std::vector<Expr> &_inputs,

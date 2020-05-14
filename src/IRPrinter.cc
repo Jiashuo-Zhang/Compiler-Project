@@ -250,6 +250,9 @@ void IRPrinter::visit(Ref<const IfThenElse> op) {
     }
 }
 
+void IRPrinter::visit(Ref<const IfThen> op) {
+    return;
+}
 
 void IRPrinter::visit(Ref<const Move> op) {
     print_indent();

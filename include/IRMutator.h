@@ -26,7 +26,13 @@
 #define BOOST_IRMUTATOR_H
 
 #include "IR.h"
+#include <vector>
+#include <map>
+#include <set>
+#include "antlr4-runtime.h"
 
+using namespace std;
+using namespace antlr4;
 
 namespace Boost {
 
@@ -34,28 +40,38 @@ namespace Internal {
 
 class IRMutator {
  public:
-    Expr mutate(const Expr&);
-    Stmt mutate(const Stmt&);
-    Group mutate(const Group&);
+    antlrcpp::Any mutate(const Expr&);
+    antlrcpp::Any mutate(const Stmt&);
+    antlrcpp::Any mutate(const Group&);
 
-    virtual Expr visit(Ref<const IntImm>);
-    virtual Expr visit(Ref<const UIntImm>);
-    virtual Expr visit(Ref<const FloatImm>);
-    virtual Expr visit(Ref<const StringImm>);
-    virtual Expr visit(Ref<const Unary>);
-    virtual Expr visit(Ref<const Binary>);
-    virtual Expr visit(Ref<const Select>);
-    virtual Expr visit(Ref<const Compare>);
-    virtual Expr visit(Ref<const Call>);
-    virtual Expr visit(Ref<const Var>);
-    virtual Expr visit(Ref<const Cast>);
-    virtual Expr visit(Ref<const Ramp>);
-    virtual Expr visit(Ref<const Index>);
-    virtual Expr visit(Ref<const Dom>);
-    virtual Stmt visit(Ref<const LoopNest>);
-    virtual Stmt visit(Ref<const IfThenElse>);
-    virtual Stmt visit(Ref<const Move>);
-    virtual Group visit(Ref<const Kernel>);
+    virtual antlrcpp::Any visit(Ref<const IntImm>);
+    virtual antlrcpp::Any visit(Ref<const UIntImm>);
+    virtual antlrcpp::Any visit(Ref<const FloatImm>);
+    virtual antlrcpp::Any visit(Ref<const StringImm>);
+    virtual antlrcpp::Any visit(Ref<const Unary>);
+    virtual antlrcpp::Any visit(Ref<const Binary>);
+    virtual antlrcpp::Any visit(Ref<const Select>);
+    virtual antlrcpp::Any visit(Ref<const Compare>);
+    virtual antlrcpp::Any visit(Ref<const Call>);
+    virtual antlrcpp::Any visit(Ref<const Var>);
+    virtual antlrcpp::Any visit(Ref<const Cast>);
+    virtual antlrcpp::Any visit(Ref<const Ramp>);
+    virtual antlrcpp::Any visit(Ref<const Index>);
+    virtual antlrcpp::Any visit(Ref<const Dom>);
+    virtual antlrcpp::Any visit(Ref<const LoopNest>);
+    virtual antlrcpp::Any visit(Ref<const IfThenElse>);
+    virtual antlrcpp::Any visit(Ref<const IfThen>);
+    virtual antlrcpp::Any visit(Ref<const Move>);
+    virtual antlrcpp::Any visit(Ref<const Kernel>);
+
+    bool inFactor, isLeft, inIndex;
+    map<string, pair<int, int> > boundTable;
+    map<string, Expr> leftIDTable, currentIDTable;
+    set<string> isLeftID;
+    Expr temp;
+    vector<pair<Expr, int> > currentExprBound;
+    Type index_type = Type::int_scalar(32);
+    Type data_type = Type::float_scalar(32);
  private:
 };
 

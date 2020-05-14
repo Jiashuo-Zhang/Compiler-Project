@@ -55,6 +55,7 @@ class IRVisitor {
     virtual void visit(Ref<const Dom>);
     virtual void visit(Ref<const LoopNest>);
     virtual void visit(Ref<const IfThenElse>);
+    virtual void visit(Ref<const IfThen>);
     virtual void visit(Ref<const Move>);
     virtual void visit(Ref<const Kernel>);
     map<string, pair<int,int> > boundTable;

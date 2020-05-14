@@ -123,6 +123,9 @@ void IRVisitor::visit(Ref<const Binary> op) {
     } else {
         (op->a).visit_expr(this);
         (op->b).visit_expr(this);
+        op->usedIndex->clear();
+        op->usedIndex->insert(op->a->usedIndex->begin(), op->a->usedIndex->end());
+        op->usedIndex->insert(op->b->usedIndex->begin(), op->b->usedIndex->end());
     }
     return;
 }
@@ -179,6 +182,8 @@ void IRVisitor::visit(Ref<const Var> op) {
     cout << op->name << ' ' << *(op->id) << endl;
     indexTable.push_back(s);
     ++varCnt;
+    op->usedIndex->clear();
+    op->usedIndex->insert(s.begin(), s.end());
     return;
 }
 
@@ -226,9 +231,14 @@ void IRVisitor::visit(Ref<const IfThenElse> op) {
     return;
 }
 
+void IRVisitor::visit(Ref<const IfThen> op) {
+    return;
+}
+
 
 void IRVisitor::visit(Ref<const Move> op) {
     varCnt = 0;
+    inIndex = false;
     (op->dst).visit_expr(this);
     (op->src).visit_expr(this);
     return;

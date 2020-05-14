@@ -77,6 +77,7 @@ class IRPrinter : public IRVisitor {
     void visit(Ref<const Dom>) override;
     void visit(Ref<const LoopNest>) override;
     void visit(Ref<const IfThenElse>) override;
+    void visit(Ref<const IfThen>) override;
     void visit(Ref<const Move>) override;
     void visit(Ref<const Kernel>) override;
  private:
