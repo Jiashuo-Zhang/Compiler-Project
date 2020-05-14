@@ -69,7 +69,7 @@ int main(int argc, const char* argv[]) {
     Expr dom_w = Dom::make(index_type, 0, W);
     Expr w = Index::make(index_type, "w", dom_w, IndexType::Spatial);
 
-    // index r
+    // index r 
     Expr dom_r = Dom::make(index_type, 0, R);
     Expr r = Index::make(index_type, "r", dom_r, IndexType::Reduce);
 
