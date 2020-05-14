@@ -72,6 +72,7 @@ class IRMutator {
     vector<pair<Expr, int> > currentExprBound;
     Type index_type = Type::int_scalar(32);
     Type data_type = Type::float_scalar(32);
+    BinaryOpType type;
  private:
 };
 

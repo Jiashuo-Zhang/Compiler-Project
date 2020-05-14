@@ -83,7 +83,7 @@ antlrcpp::Any IRMutator::visit(Ref<const Unary> op) {
                 if (isLeftID.find(p.first) == isLeftID.end())
                     currentID.push_back(p.second);
 
-            Stmt body = Move::make(temp, Binary::make(data_type, BinaryOpType::Add, temp, new_a), MoveType::MemToMem);
+            Stmt body = Move::make(temp, Binary::make(data_type, type, temp, new_a), MoveType::MemToMem);
 
             size_t len = currentExprBound.size();
             for (size_t i = 0; i < len; ++i) {
@@ -126,6 +126,7 @@ antlrcpp::Any IRMutator::visit(Ref<const Binary> op) { /**/
                 vector<Stmt> new_a = mutate(op->a).as<vector<Stmt> >();
                 currentIDTable.clear();
                 currentExprBound.clear();
+                type = op->op_type;
                 vector<Stmt> new_b = mutate(op->b).as<vector<Stmt> >();
                 currentIDTable.clear();
                 currentExprBound.clear();
@@ -149,7 +150,7 @@ antlrcpp::Any IRMutator::visit(Ref<const Binary> op) { /**/
                         currentID.push_back(p.second);
                 
                 Expr bin = Binary::make(op->type(), op->op_type, new_a, new_b);
-                Stmt body = Move::make(temp, Binary::make(data_type, BinaryOpType::Add, temp, bin), MoveType::MemToMem);
+                Stmt body = Move::make(temp, Binary::make(data_type, type, temp, bin), MoveType::MemToMem);
 
                 size_t len = currentExprBound.size();
                 for (size_t i = 0; i < len; ++i) {
@@ -238,7 +239,7 @@ antlrcpp::Any IRMutator::visit(Ref<const Var> op) { /**/
     } else {
         if (!inFactor) {
             Expr var = Var::make(op->type(), op->name, new_args, op->shape);
-            Expr bin = Binary::make(data_type, BinaryOpType::Add, temp, var);
+            Expr bin = Binary::make(data_type, type, temp, var);
             Stmt body = Move::make(temp, bin, MoveType::MemToMem);
             size_t len = currentExprBound.size();
             for (size_t i = 0; i < len; ++i) {
@@ -310,6 +311,7 @@ antlrcpp::Any IRMutator::visit(Ref<const IfThen> op) { /**/
 antlrcpp::Any IRMutator::visit(Ref<const Move> op) { /**/
     inIndex = false;
     isLeft = true;
+    type = BinaryOpType::Add;
     currentExprBound.clear();
     Expr new_dst = mutate(op->dst).as<Expr>();
     isLeft = false;
