@@ -13,8 +13,8 @@ class  kernelParser : public antlr4::Parser {
 public:
   enum {
     T__0 = 1, T__1 = 2, T__2 = 3, T__3 = 4, T__4 = 5, T__5 = 6, T__6 = 7, 
-    T__7 = 8, IntV = 9, FloatV = 10, Id = 11, PLUS = 12, MUL = 13, INTDIV = 14, 
-    DIV = 15, MOD = 16, MINUS = 17, WS = 18
+    T__7 = 8, T__8 = 9, IntV = 10, FloatV = 11, Id = 12, PLUS = 13, MUL = 14, 
+    INTDIV = 15, DIV = 16, MOD = 17, MINUS = 18, WS = 19
   };
 
   enum {

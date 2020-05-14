@@ -36,15 +36,15 @@ class Kernel2IRVisitor : public kernelBaseVisitor
     
     antlrcpp::Any visitVisitP(kernelParser::VisitPContext *ctx) override {
         vector<Stmt> StmtList;
-        cout<<"EnterVisitP"<<endl;
-        StmtList.push_back(visit(ctx->s()).as<Stmt>());////s should return stmt
+        //cout<<"EnterVisitP"<<endl;
+        StmtList.push_back(visit(ctx->s()).as<Stmt>());//s should return stmt
         vector<Stmt> LeftList;
         //cout<<StmtList.size()<<endl;
         LeftList=visit(ctx->p1()).as<vector<Stmt>>();
         
         for(vector<Stmt>::iterator it=LeftList.begin();it!=LeftList.end();it++)
         {
-            cout<<"ADD STATEMENT!"<<endl;
+            //cout<<"ADD STATEMENT!"<<endl;
             StmtList.push_back(*it);
         }
         return StmtList;
@@ -52,7 +52,7 @@ class Kernel2IRVisitor : public kernelBaseVisitor
     
     antlrcpp::Any visitVisitP1(kernelParser::VisitP1Context *ctx) override {
         vector<Stmt> StmtList;
-        StmtList.push_back(visit(ctx->s()).as<Stmt>());////s should return stmt
+        StmtList.push_back(visit(ctx->s()).as<Stmt>());//s should return stmt
         vector<Stmt> LeftList;
         LeftList=visit(ctx->p1()).as<vector<Stmt>>();
         for(vector<Stmt>::iterator it=LeftList.begin();it!=LeftList.end();it++)
@@ -68,7 +68,7 @@ class Kernel2IRVisitor : public kernelBaseVisitor
     }
     
     antlrcpp::Any visitVisitS(kernelParser::VisitSContext *ctx) override {
-        cout<<"EnterVisitS"<<endl;
+        //cout<<"EnterVisitS"<<endl;
         Expr lhsExpr=visit(ctx->lhs()).as<Expr>();
         Expr rhsExpr=visit(ctx->rhs()).as<Expr>();
         Stmt s= Move::make(lhsExpr,rhsExpr,MoveType::MemToMem);
@@ -76,7 +76,7 @@ class Kernel2IRVisitor : public kernelBaseVisitor
     }
     
     antlrcpp::Any visitLHS(kernelParser::LHSContext *ctx) override {
-        cout<<"EnterVisitLHS"<<endl;
+        //cout<<"EnterVisitLHS"<<endl;
         Expr tRef;
         tRef=visit(ctx->tRef()).as<Expr>();
         return tRef;
@@ -88,7 +88,7 @@ class Kernel2IRVisitor : public kernelBaseVisitor
     }
     
     antlrcpp::Any visitRHSSecondopRHS(kernelParser::RHSSecondopRHSContext *ctx) override {
-        cout<<"EnterSecondOpRHS"<<endl;
+        cout<<"Enter SecondOpRHS"<<endl;
         Expr first=visit(ctx->rhs(0)).as<Expr>();
         Expr second=visit(ctx->rhs(1)).as<Expr>();
         int t=visit(ctx->rhsSecondCalc()).as<int>();
@@ -96,26 +96,30 @@ class Kernel2IRVisitor : public kernelBaseVisitor
         {
             Expr res1=Expr(Binary::make(kernel_data_type,BinaryOpType::Add,first,second));
             cout<<"+"<<endl;
+            cout<<"Leave SecondOpRHS"<<endl;
             return res1;
         }
         else if(t==2)
         {
-            Expr res1=Expr(Binary::make(kernel_data_type,BinaryOpType::Add,first,second));
-            cout<<"+"<<endl;
+            Expr res1=Expr(Binary::make(kernel_data_type,BinaryOpType::Sub,first,second));
+            cout<<"-"<<endl;
+            cout<<"Leave SecondOpRHS"<<endl;
             return res1;
         }
         
-        cout<<"FinishSecondOpRHS"<<endl;
         return first;
         
     }
     
     antlrcpp::Any visitOneRHS(kernelParser::OneRHSContext *ctx) override {
-        return visit(ctx->rhs()).as<Expr>();
+        cout<<"Meet ( )"<<endl;
+        Expr exp=visit(ctx->rhs()).as<Expr>();
+        Expr res=Unary::make(kernel_index_type,UnaryOpType::Not, exp);
+        return res;
     }
     
     antlrcpp::Any visitRHSFirstropRHS(kernelParser::RHSFirstropRHSContext *ctx) override {
-        cout<<"EnterRHSFirstOp"<<endl;
+        cout<<"Enter FirstOpRHS"<<endl;
         Expr first=visit(ctx->rhs(0)).as<Expr>();
         Expr second=visit(ctx->rhs(1)).as<Expr>();
         
@@ -123,31 +127,27 @@ class Kernel2IRVisitor : public kernelBaseVisitor
         Expr res;
         if(t==3)
         {
-            //cout<<"Find *"<<endl;
-            Expr res3=Binary::make(kernel_data_type,BinaryOpType::Mul,first,second);
+            
+            res=Binary::make(kernel_data_type,BinaryOpType::Mul,first,second);
             cout<<"*"<<endl;
-            return res3;
         }
         else if(t==4)
         {
-            Expr res4=Binary::make(kernel_data_type,BinaryOpType::Div,first,second);
+            res=Binary::make(kernel_data_type,BinaryOpType::Div,first,second);
             cout<<"/"<<endl;
-            return res4;
         }
         else if(t==5)
         {
-            Expr res5=Binary::make(kernel_data_type,BinaryOpType::Mod,first,second);
+            res=Binary::make(kernel_data_type,BinaryOpType::Mod,first,second);
             cout<<"%"<<endl;
-            return res5;
         }
         else if(t==6)
         {
-            Expr res6=Binary::make(kernel_index_type,BinaryOpType::Div,first,second);
+            res=Binary::make(kernel_index_type,BinaryOpType::Div,first,second);
             cout<<"/"<<"/"<<endl;
-            return res6;
         }
        
-        cout<<"FinishRHSFirstOp"<<endl;
+        cout<<"Leave FirstOpRHS"<<endl;
         return res;
     }
     
@@ -187,11 +187,9 @@ class Kernel2IRVisitor : public kernelBaseVisitor
     
     
     antlrcpp::Any visitTREF(kernelParser::TREFContext *ctx) override {
-        cout<<"EnterTREF"<<endl;
         string Id=ctx->Id()->getText();
         vector<size_t> Clist=visit(ctx->clist()).as<vector<size_t>>();
         vector<Expr> Alist=visit(ctx->alist()).as<vector<Expr>>();
-        //Expr res;
         Expr res=Var::make(kernel_data_type,Id,Alist,Clist);
         return res;
     }
@@ -200,13 +198,11 @@ class Kernel2IRVisitor : public kernelBaseVisitor
         string Id=ctx->Id()->getText();
         vector<size_t> Clist=visit(ctx->clist()).as<vector<size_t>>();
         vector<Expr> Alist;
-        ///Expr res;
         Expr res=Var::make(kernel_data_type,Id,Alist,Clist);
         return res;
     }
     
     antlrcpp::Any visitCLIST(kernelParser::CLISTContext *ctx) override {
-        cout<<"EnterCList"<<endl;
         vector<size_t> CList;
         size_t first;
         string s = ctx->IntV()->getText();
@@ -219,12 +215,10 @@ class Kernel2IRVisitor : public kernelBaseVisitor
         {
             CList.push_back(*it);
         }
-        cout<<"FinishCList"<<endl;
         return CList;
     }
     
     antlrcpp::Any visitCLISTNODE(kernelParser::CLISTNODEContext *ctx) override {
-        cout<<"EnterClistNode"<<endl;
         vector<size_t> CList;
         size_t first;
         string s = ctx->IntV()->getText();
@@ -237,7 +231,6 @@ class Kernel2IRVisitor : public kernelBaseVisitor
         {
             CList.push_back(*it);
         }
-        cout<<"FinishClistNode"<<endl;
         return CList;
     }
     
@@ -247,7 +240,6 @@ class Kernel2IRVisitor : public kernelBaseVisitor
     }
     
     antlrcpp::Any visitALIST(kernelParser::ALISTContext *ctx) override {
-        cout<<"EnterAlist"<<endl;
         vector<Expr> AList;
         AList.push_back(visit(ctx->idExpr()).as<Expr>());
         vector<Expr> LeftList;
@@ -284,6 +276,7 @@ class Kernel2IRVisitor : public kernelBaseVisitor
     }
     
     antlrcpp::Any visitFirstIdIntV(kernelParser::FirstIdIntVContext *ctx) override {
+        cout<<"Enter FirstIdOpIntV"<<endl;
         Expr first=visit(ctx->idExpr()).as<Expr>();
         int t=visit(ctx->idExprFirstCalc()).as<int>();
         size_t num;
@@ -296,16 +289,20 @@ class Kernel2IRVisitor : public kernelBaseVisitor
         switch (t) {
             case 3:
                 res=Binary::make(kernel_index_type,BinaryOpType::Mul,first,second);
+                cout<<"*"<<endl;
                 break;
             case 4:
                 res=Binary::make(kernel_index_type,BinaryOpType::Div,first,second);
+                cout<<"//"<<endl;
                 break;
             case 5:
                 res=Binary::make(kernel_index_type,BinaryOpType::Mod,first,second);
+                cout<<"%"<<endl;
                 break;
             default:
                 break;
         }
+        cout<<"Leave FirstIdOpIntV"<<endl;
         return res;
     }
     
@@ -318,6 +315,7 @@ class Kernel2IRVisitor : public kernelBaseVisitor
     }
     
     antlrcpp::Any visitSecondIdIntV(kernelParser::SecondIdIntVContext *ctx) override {
+        cout<<"Enter IdOpIntV"<<endl;
         Expr first=visit(ctx->idExpr()).as<Expr>();
         int t=visit(ctx->idExprSecondCalc()).as<int>();
         size_t num;
@@ -325,18 +323,20 @@ class Kernel2IRVisitor : public kernelBaseVisitor
         std::stringstream sstream(s);
         sstream >> num;
         Expr second=Expr(int(num));
-       // Expr second;
         Expr res;
         switch (t) {
             case 1:
                 res=Binary::make(kernel_index_type,BinaryOpType::Add,first,second);
+                cout<<"+"<<endl;
                 break;
             case 2:
                 res=Binary::make(kernel_index_type,BinaryOpType::Sub,first,second);
+                cout<<"-"<<endl;
                 break;
             default:
                 break;
         }
+        cout<<"Leave IdOpIntV"<<endl;
         return res;
     }
     
@@ -348,7 +348,10 @@ class Kernel2IRVisitor : public kernelBaseVisitor
     }
     
     antlrcpp::Any visitOneIdExpr(kernelParser::OneIdExprContext *ctx) override {
-        return visit(ctx->idExpr());
+        cout<<"Meet ( )"<<endl;
+        Expr exp=visit(ctx->idExpr()).as<Expr>();
+        Expr res=Unary::make(kernel_index_type,UnaryOpType::Not, exp);
+        return res;
     }
     
     antlrcpp::Any visitIdExprCalcIsMUL(kernelParser::IdExprCalcIsMULContext *ctx) override {

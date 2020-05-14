@@ -4,9 +4,9 @@ prog: p EOF # Start
 |EOF # End
 ;
 
-p : s p1 # VisitP
+p : s ';' p1 # VisitP
 ;
-p1 : s p1 # VisitP1
+p1 : s ';' p1 # VisitP1
 | # P1Nothing
 ;
 
