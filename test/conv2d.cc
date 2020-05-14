@@ -64,7 +64,7 @@ int main() {
                Binary::make(index_type, BinaryOpType::Add, q, s)},
         {N, C, H, W});
 
-    // W
+    // W 
     Expr expr_W = Var::make(data_type, "W", {k, c, r, s}, {K, C, R, S});
 
     // O
