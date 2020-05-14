@@ -84,7 +84,8 @@ class Kernel2IRVisitor : public kernelBaseVisitor
     
     antlrcpp::Any visitRHSconstNum(kernelParser::RHSconstNumContext *ctx) override {
         Expr ConstNum=visit(ctx->constNum()).as<Expr>();
-        return ConstNum;
+        Expr res=Unary::make(kernel_data_type, UnaryOpType::Id, ConstNum);
+        return res;
     }
     
     antlrcpp::Any visitRHSSecondopRHS(kernelParser::RHSSecondopRHSContext *ctx) override {
@@ -114,7 +115,7 @@ class Kernel2IRVisitor : public kernelBaseVisitor
     antlrcpp::Any visitOneRHS(kernelParser::OneRHSContext *ctx) override {
         cout<<"Meet ( )"<<endl;
         Expr exp=visit(ctx->rhs()).as<Expr>();
-        Expr res=Unary::make(kernel_index_type,UnaryOpType::Not, exp);
+        Expr res=Unary::make(kernel_index_type,UnaryOpType::Id, exp);
         return res;
     }
     
@@ -350,7 +351,7 @@ class Kernel2IRVisitor : public kernelBaseVisitor
     antlrcpp::Any visitOneIdExpr(kernelParser::OneIdExprContext *ctx) override {
         cout<<"Meet ( )"<<endl;
         Expr exp=visit(ctx->idExpr()).as<Expr>();
-        Expr res=Unary::make(kernel_index_type,UnaryOpType::Not, exp);
+        Expr res=Unary::make(kernel_index_type,UnaryOpType::Id, exp);
         return res;
     }
     

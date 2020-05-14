@@ -29,7 +29,7 @@ namespace Boost {
 namespace Internal {
 
 
-void IRVisitor::visit(Ref<const IntImm> op) {
+void IRVisitor::visit(Ref<const IntImm> op) { /**/
     if (inIndex)
         imm = op->value();
     return;
@@ -57,7 +57,7 @@ void IRVisitor::visit(Ref<const Unary> op) {
 }
 
 
-void IRVisitor::visit(Ref<const Binary> op) {
+void IRVisitor::visit(Ref<const Binary> op) { /**/
     if (inIndex) {
         bool isImm = false;
         //printf("%d %d\n", (op->a).node_type(), (op->b).node_type());
@@ -123,9 +123,6 @@ void IRVisitor::visit(Ref<const Binary> op) {
     } else {
         (op->a).visit_expr(this);
         (op->b).visit_expr(this);
-        op->usedIndex->clear();
-        op->usedIndex->insert(op->a->usedIndex->begin(), op->a->usedIndex->end());
-        op->usedIndex->insert(op->b->usedIndex->begin(), op->b->usedIndex->end());
     }
     return;
 }
@@ -166,24 +163,15 @@ void IRVisitor::visit(Ref<const Ramp> op) {
 }
 
 
-void IRVisitor::visit(Ref<const Var> op) {
-    set<string> s;
+void IRVisitor::visit(Ref<const Var> op) { /**/
     for (size_t i = 0; i < op->args.size(); ++i) {
         currentBound = pair<int,int>(0, op->shape[i]);
-        currentIndexSet.clear();
         inIndex = true;
         isUpdate = true;
         op->args[i].visit_expr(this);
         isUpdate = true;
         inIndex = false;
-        s.insert(currentIndexSet.begin(), currentIndexSet.end());
     }
-    *(op->id) = varCnt;
-    cout << op->name << ' ' << *(op->id) << endl;
-    indexTable.push_back(s);
-    ++varCnt;
-    op->usedIndex->clear();
-    op->usedIndex->insert(s.begin(), s.end());
     return;
 }
 
@@ -195,8 +183,7 @@ void IRVisitor::visit(Ref<const Dom> op) {
 }
 
 
-void IRVisitor::visit(Ref<const Index> op) {
-    currentIndexSet.insert(op->name);
+void IRVisitor::visit(Ref<const Index> op) { /**/
     if (isUpdate) {
         auto iter = boundTable.find(op->name);
         if (iter == boundTable.end())
@@ -236,8 +223,7 @@ void IRVisitor::visit(Ref<const IfThen> op) {
 }
 
 
-void IRVisitor::visit(Ref<const Move> op) {
-    varCnt = 0;
+void IRVisitor::visit(Ref<const Move> op) { /**/
     inIndex = false;
     (op->dst).visit_expr(this);
     (op->src).visit_expr(this);

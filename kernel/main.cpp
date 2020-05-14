@@ -99,24 +99,31 @@ int main(int argc, const char* argv[]) {
 
     stmtList.push_back(main_stmt);*/
 
+    vector<Stmt> bodyList;
     for (auto stmt : stmtList) {
         IRVisitor visitor;
         stmt.visit_stmt(&visitor);
         for (auto tmp : visitor.boundTable)
             cout << tmp.first << " [" << tmp.second.first <<  ", " << tmp.second.second << ")" << endl;
         cout << endl;
-        for (size_t i = 0; i < visitor.indexTable.size(); ++i) {
+        /*for (size_t i = 0; i < visitor.indexTable.size(); ++i) {
             cout << i << " {";
             for (auto tmp2 : visitor.indexTable[i])
                 cout << tmp2 << ", ";
             cout << "$}" << endl;
         }
-        cout << endl;
+        cout << endl;*/
         IRMutator mutator;
         mutator.boundTable = visitor.boundTable;
-        stmt = mutator.mutate(stmt);
+        vector<Stmt> tmp = mutator.mutate(stmt).as<vector<Stmt> >();
+        for (Stmt s : tmp)
+            bodyList.push_back(s);
+        
+    }
+
+    for (Stmt s : bodyList) {
         IRPrinter printer;
-        string code = printer.print(stmt);
+        string code = printer.print(s);
         cout << code;
     }
     return 0;

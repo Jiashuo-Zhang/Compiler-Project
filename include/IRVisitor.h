@@ -59,11 +59,9 @@ class IRVisitor {
     virtual void visit(Ref<const Move>);
     virtual void visit(Ref<const Kernel>);
     map<string, pair<int,int> > boundTable;
-    vector<set<string> > indexTable;
-    set<string> currentIndexSet;
     pair<int,int> currentBound;
     bool inIndex, isUpdate;
-    int imm, varCnt;
+    int imm;
  private:
 };
 

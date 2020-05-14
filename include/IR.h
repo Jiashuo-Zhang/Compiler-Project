@@ -177,8 +177,7 @@ class ExprNode : public IRNode {
  private:
     Type type_;
  public:
-    std::set<std::string> *usedIndex;
-    ExprNode(Type _type, const IRNodeType node_type) : IRNode(node_type), type_(_type), usedIndex(new std::set<std::string>()) {} 
+    ExprNode(Type _type, const IRNodeType node_type) : IRNode(node_type), type_(_type) {} 
 
     virtual ~ExprNode() = default;
 
@@ -524,7 +523,8 @@ class Group : public Ref<const GroupNode> {
 
 enum class UnaryOpType : uint8_t {
     Neg,    /* negate */
-    Not     /* logic not */
+    Not,    /* logic not */
+    Id      /* identity */
 };
 
 
@@ -727,11 +727,10 @@ class Var : public ExprNode, public std::enable_shared_from_this<Var> {
     std::vector<Expr> args;
     // TODO: this may need to be removed to other class
     std::vector<size_t> shape;
-    int *id;
 
     Var(Type _type, const std::string &_name, const std::vector<Expr> &_args,
         const std::vector<size_t> &_shape) : ExprNode(_type, IRNodeType::Var),
-        name(_name), args(_args), shape(_shape), id(new int(0)) {}
+        name(_name), args(_args), shape(_shape) {}
 
     antlrcpp::Any mutate_expr(IRMutator *mutator) const;
     void visit_node(IRVisitor *visitor) const;

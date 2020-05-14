@@ -73,10 +73,15 @@ void IRPrinter::visit(Ref<const StringImm> op) {
 void IRPrinter::visit(Ref<const Unary> op) {
     if (op->op_type == UnaryOpType::Neg) {
         oss << "-";
+        (op->a).visit_expr(this);
     } else if (op->op_type == UnaryOpType::Not) {
         oss << "!";
+        (op->a).visit_expr(this);
+    } else {
+        oss << "(";
+        (op->a).visit_expr(this);
+        oss << ")";
     }
-    (op->a).visit_expr(this);
 }
 
 
@@ -251,7 +256,16 @@ void IRPrinter::visit(Ref<const IfThenElse> op) {
 }
 
 void IRPrinter::visit(Ref<const IfThen> op) {
-    return;
+    print_indent();
+    oss << "if (";
+    (op->cond).visit_expr(this);
+    oss << ") {\n";
+    enter();
+    for (Stmt s : op->body_list)
+        s.visit_stmt(this);
+    exit();
+    print_indent();
+    oss << "}\n";
 }
 
 void IRPrinter::visit(Ref<const Move> op) {
