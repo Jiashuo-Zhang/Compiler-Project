@@ -67,8 +67,9 @@ class IRMutator {
     bool inFactor, isLeft, inIndex;
     map<string, pair<int, int> > boundTable;
     map<string, Expr> leftIDTable, currentIDTable;
+    map<string, vector<size_t> > tempList;
     set<string> isLeftID;
-    Expr temp;
+    Expr currentTemp;
     vector<pair<Expr, int> > currentExprBound;
     Type index_type = Type::int_scalar(32);
     Type data_type = Type::float_scalar(32);
