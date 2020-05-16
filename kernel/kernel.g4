@@ -77,9 +77,9 @@ constNum : FloatV # FloatConst
 ;
 
 
-IntV : [0-9]+ 
+IntV : '-'*[0-9]+ 
 ;
-FloatV: [0-9]+ ('.')* [0-9]* 
+FloatV: '-'*[0-9]+ '.'* [0-9]* 
 ;
 Id :[a-zA-Z]+ 
 ;
