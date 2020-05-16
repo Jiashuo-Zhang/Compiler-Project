@@ -83,7 +83,7 @@ antlrcpp::Any IRMutator::visit(Ref<const Unary> op) {
                 if (isLeftID.find(p.first) == isLeftID.end())
                     currentID.push_back(p.second);
 
-            Stmt body = Move::make(temp, Binary::make(data_type, type, temp, new_a), MoveType::MemToMem);
+            Stmt body = Move::make(currentTemp, Binary::make(data_type, type, currentTemp, new_a), MoveType::MemToMem);
 
             size_t len = currentExprBound.size();
             for (size_t i = 0; i < len; ++i) {
@@ -150,7 +150,7 @@ antlrcpp::Any IRMutator::visit(Ref<const Binary> op) { /**/
                         currentID.push_back(p.second);
                 
                 Expr bin = Binary::make(op->type(), op->op_type, new_a, new_b);
-                Stmt body = Move::make(temp, Binary::make(data_type, type, temp, bin), MoveType::MemToMem);
+                Stmt body = Move::make(currentTemp, Binary::make(data_type, type, currentTemp, bin), MoveType::MemToMem);
 
                 size_t len = currentExprBound.size();
                 for (size_t i = 0; i < len; ++i) {
@@ -234,13 +234,15 @@ antlrcpp::Any IRMutator::visit(Ref<const Var> op) { /**/
         currentExprBound.push_back(make_pair(tmp, op->shape[i]));
     }
     if (isLeft) {
-        temp = Var::make(op->type(), "temp", new_args, op->shape);
+        string tempName = "temp_" + op->name;
+        currentTemp = Var::make(op->type(), tempName, new_args, op->shape);
+        tempList.insert(make_pair(tempName, op->shape));
         return Var::make(op->type(), op->name, new_args, op->shape);
     } else {
         if (!inFactor) {
             Expr var = Var::make(op->type(), op->name, new_args, op->shape);
-            Expr bin = Binary::make(data_type, type, temp, var);
-            Stmt body = Move::make(temp, bin, MoveType::MemToMem);
+            Expr bin = Binary::make(data_type, type, currentTemp, var);
+            Stmt body = Move::make(currentTemp, bin, MoveType::MemToMem);
             size_t len = currentExprBound.size();
             for (size_t i = 0; i < len; ++i) {
                 Expr tmp1 = Compare::make(index_type, CompareOpType::GE, currentExprBound[i].first, Expr(0));
@@ -323,12 +325,12 @@ antlrcpp::Any IRMutator::visit(Ref<const Move> op) { /**/
     vector<pair<Expr, int> > vec;
     vec.assign(currentExprBound.begin(), currentExprBound.end());
     currentExprBound.clear();
-    Stmt init = Move::make(temp, Expr(0), op->move_type);
+    Stmt init = Move::make(currentTemp, Expr(0), op->move_type);
 
     inFactor = false;
     vector<Stmt> bodyList = mutate(op->src).as<vector<Stmt> >();
     bodyList.insert(bodyList.begin(), init);
-    Stmt loadAtIndex = Move::make(new_dst, temp, op->move_type);
+    Stmt loadAtIndex = Move::make(new_dst, currentTemp, op->move_type);
 
     size_t len = vec.size();
     Expr cond1 = Compare::make(index_type, CompareOpType::GE, vec[0].first, Expr(0));

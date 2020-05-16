@@ -100,6 +100,7 @@ int main(int argc, const char* argv[]) {
     stmtList.push_back(main_stmt);*/
 
     vector<Stmt> bodyList;
+    map<string, vector<size_t> > allTempList;
     for (auto stmt : stmtList) {
         IRVisitor visitor;
         stmt.visit_stmt(&visitor);
@@ -118,7 +119,15 @@ int main(int argc, const char* argv[]) {
         vector<Stmt> tmp = mutator.mutate(stmt).as<vector<Stmt> >();
         for (Stmt s : tmp)
             bodyList.push_back(s);
-        
+        for (auto p : mutator.tempList)
+            allTempList.insert(p);
+    }
+
+    for (auto p : allTempList) {
+        cout << p.first << ": (";
+        for (size_t l : p.second)
+            cout << l << ", ";
+        cout << "$)" << endl;
     }
 
     for (Stmt s : bodyList) {
