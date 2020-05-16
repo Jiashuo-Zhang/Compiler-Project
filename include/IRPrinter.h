@@ -38,7 +38,7 @@ namespace Internal {
 class IRPrinter : public IRVisitor {
  public:
     IRPrinter() : IRVisitor() {
-        indent = 0;
+        indent = 1;
         print_range = false;
         print_arg = false;
         print_dom_begin = false;

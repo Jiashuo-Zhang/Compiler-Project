@@ -49,6 +49,17 @@ else(MSVC)
 endif(MSVC)
 
 
+include_directories(
+  kernel/antlr4-runtime/
+  kernel/antlr4-runtime/misc
+  kernel/antlr4-runtime/atn
+  kernel/antlr4-runtime/dfa
+  kernel/antlr4-runtime/tree
+  kernel/antlr4-runtime/support
+  kernel/
+  kernel/libs/
+)
+
 # Source file
 file(GLOB COMPILER_SRCS
     src/*.cc
@@ -58,6 +69,12 @@ file(GLOB COMPILER_INCLUDES
     include/*.h
     )
 
+file(GLOB KERNEL_SRCS
+    kernel/antlr4-runtime/kernelLexer.cpp
+    kernel/antlr4-runtime/kernelParser.cpp
+    kernel/antlr4-runtime/kernelBaseVisitor.cpp
+    kernel/antlr4-runtime/kernelVisitor.cpp
+    )
 
 if(NOT MSVC)
   include(CheckCXXCompilerFlag)
@@ -69,6 +86,18 @@ endif()
 add_library(${LIB_NAME} SHARED ${COMPILER_SRCS} ${COMPILER_INCLUDES})
 
 target_link_libraries(${LIB_NAME} ${BOOST_LINKER_LIBS} ${BOOST_RUNTIME_LINKER_LIBS})
+
+add_library(kernel SHARED ${KERNEL_SRCS})
+
+if(WIN32)
+  target_link_libraries(kernel "${PROJECT_SOURCE_DIR}/kernel/libs/antlr4-runtime.lib")
+endif()
+
+if(APPLE)
+  target_link_libraries(kernel "${PROJECT_SOURCE_DIR}/kernel/libs/libantlr4-runtime.dylib")
+elseif(UNIX)
+  target_link_libraries(kernel "${PROJECT_SOURCE_DIR}/kernel/libs/libantlr4-runtime.so")
+endif()  
 
 if (HIDE_PRIVATE_SYMBOLS AND NOT ${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
   set(HIDE_SYMBOLS_LINKER_FLAGS "-Wl,--exclude-libs,ALL")
