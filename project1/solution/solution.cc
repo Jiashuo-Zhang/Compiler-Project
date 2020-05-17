@@ -103,12 +103,12 @@ int main() {
         bool first = true;
         set<string> arg_set;
         for(int i = 0;i < root["ins"].size();++i) {
-            if(!first)
-                result << ", ";
-            first = false;
             string arg_name = root["ins"][i].asString();
             arg_set.insert(arg_name);
             auto shape = visitor.varShapeTable[arg_name];
+            if(!first)
+                result << ", ";
+            first = false;
             if(shape.size() == 1 && shape[0] == 1){
                 result << data_type << " &" << arg_name;
                 continue;
@@ -119,12 +119,12 @@ int main() {
             } 
         }
         for(int i = 0;i < root["outs"].size();++i) {
-            if(!first)
-                result << ", ";
-            first = false;
             string arg_name = root["outs"][i].asString();
             if(arg_set.count(arg_name))
                 continue;
+            if(!first)
+                result << ", ";
+            first = false;
             auto shape = visitor.varShapeTable[arg_name];
             if(shape.size() == 1 && shape[0] == 1){
                 result << data_type << " &" << arg_name;
