@@ -24,7 +24,10 @@ using namespace std;
 
 
 int main() {
-    FILE *fcc = fopen("./kernels/kernel_case1.cc", "r");
+    string data_type = "float";
+    string filename = "./kernels/kernel_case10.cc";
+
+    FILE *fcc = fopen(filename.c_str(), "r");
     char buf[4096];
     memset(buf, 0, 4096);
     int cnt = fread(buf, 1, 4096, fcc);
@@ -32,16 +35,15 @@ int main() {
     cnt -= 2;
     fclose(fcc);
     
-    string data_type = "float";
 
     std::ofstream temp;
     temp.open("input.kernel");
     temp.clear();
-    temp << "A<32, 16>[i, j] = 2;";
+    temp << "A<8, 8>[i, j] = (B<10, 10>[i, j] + B<10, 10>[i + 1, j] + B<10, 10>[i + 2, j]) / 3;";
     temp.close();
 
     std::ofstream result;
-    result.open("./kernels/kernel_case1.cc");
+    result.open(filename);
     result.clear();
     result << buf << " {\n";
 
