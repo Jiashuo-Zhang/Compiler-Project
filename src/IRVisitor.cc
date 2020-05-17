@@ -164,6 +164,7 @@ void IRVisitor::visit(Ref<const Ramp> op) {
 
 
 void IRVisitor::visit(Ref<const Var> op) { /**/
+    varShapeTable[op->name] = vector<size_t>(op->shape);
     for (size_t i = 0; i < op->args.size(); ++i) {
         currentBound = pair<int,int>(0, op->shape[i]);
         inIndex = true;

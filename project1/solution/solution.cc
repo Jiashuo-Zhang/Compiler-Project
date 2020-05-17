@@ -28,6 +28,7 @@ int main() {
     stringstream ss;
 
     string data_type;
+    string name;
     string json_filename;
     string filename;
     string kernel;
@@ -48,23 +49,16 @@ int main() {
             json_filename = "./cases/example.json";
         }
 
-        FILE *fcc = fopen(filename.c_str(), "r");
-        if(!fcc)
-            continue;
-        char buf[4096];
-        memset(buf, 0, 4096);
-        int cnt = fread(buf, 1, 4096, fcc);
-        buf[cnt - 1] = buf[cnt - 2] = 0;
-        cnt -= 2;
-        fclose(fcc);
-
         char json_buf[4096];
         memset(json_buf, 0, 4096);
         FILE *fcase = fopen(json_filename.c_str(), "r");
+        if(!fcase)
+            continue;
         fread(json_buf, 1, 4096, fcase);
         reader.parse(json_buf, root);
         kernel = root["kernel"].asString();
         data_type = root["data_type"].asString();
+        name = root["name"].asString();
 
         std::ofstream temp;
         temp.open("input.kernel");
@@ -75,7 +69,7 @@ int main() {
         std::ofstream result;
         result.open(filename);
         result.clear();
-        result << buf << " {\n";
+        result << "#include \"../run.h\"\n\n";
 
         std::ifstream stream;
         stream.open("input.kernel");
@@ -85,13 +79,13 @@ int main() {
         kernelParser parser(&tokens);
         kernelParser::ProgContext* tree = parser.prog();
 
-        Kernel2IRVisitor visitor;
-        vector<Stmt> stmtList = visitor.visit(tree).as<vector<Stmt> >();
+        Kernel2IRVisitor kvisitor;
+        vector<Stmt> stmtList = kvisitor.visit(tree).as<vector<Stmt> >();
 
         vector<Stmt> bodyList;
         map<string, vector<size_t> > allTempList;
+        IRVisitor visitor;
         for (auto stmt : stmtList) {
-            IRVisitor visitor;
             stmt.visit_stmt(&visitor);
             for (auto tmp : visitor.boundTable)
                 cout << tmp.first << " [" << tmp.second.first <<  ", " << tmp.second.second << ")" << endl;
@@ -104,6 +98,44 @@ int main() {
             for (auto p : mutator.tempList)
                 allTempList.insert(p);
         }
+
+        result << "void " << name << '(';
+        bool first = true;
+        set<string> arg_set;
+        for(int i = 0;i < root["ins"].size();++i) {
+            if(!first)
+                result << ", ";
+            first = false;
+            string arg_name = root["ins"][i].asString();
+            arg_set.insert(arg_name);
+            auto shape = visitor.varShapeTable[arg_name];
+            if(shape.size() == 1 && shape[0] == 1){
+                result << data_type << " &" << arg_name;
+                continue;
+            }
+            result << data_type << " (&" << arg_name << ")";
+            for(auto l : shape) {
+                result << "[" << l << "]";
+            } 
+        }
+        for(int i = 0;i < root["outs"].size();++i) {
+            if(!first)
+                result << ", ";
+            first = false;
+            string arg_name = root["outs"][i].asString();
+            if(arg_set.count(arg_name))
+                continue;
+            auto shape = visitor.varShapeTable[arg_name];
+            if(shape.size() == 1 && shape[0] == 1){
+                result << data_type << " &" << arg_name;
+                continue;
+            }
+            result << data_type << " (&" << arg_name << ")";
+            for(auto l : shape) {
+                result << "[" << l << "]";
+            } 
+        }
+        result << ") {\n";
 
         for (auto p : allTempList) {
             result << " " << data_type << " " << p.first;
