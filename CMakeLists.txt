@@ -107,8 +107,7 @@ if (HIDE_PRIVATE_SYMBOLS AND NOT ${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
   target_link_libraries(${LIB_NAME} ${HIDE_SYMBOLS_LINKER_FLAGS})
 endif()
 
-add_subdirectory(test)
-add_subdirectory(project1)
+add_subdirectory(project2)
 
 # JSON targets.
 add_subdirectory("jsoncpp"
