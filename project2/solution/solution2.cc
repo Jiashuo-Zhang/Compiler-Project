@@ -24,7 +24,7 @@
 
 using namespace std;
 
-extern string grad_to;
+extern vector<string> grad_to;
 
 int main() {
     stringstream ss;
