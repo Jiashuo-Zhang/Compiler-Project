@@ -155,11 +155,11 @@ int main() {
         result << ") {\n";
 
         for (auto p : allTempList) {
-            result << " " << data_type << " " << p.first;
             if(p.second.size() == 1 && p.second[0] == 1) {
-                result << ";\n";
+                result << " int " << p.first << ";\n";
                 continue;
             }
+            result << " " << data_type << " " << p.first;
             for (size_t l : p.second)
                 result << "[" << l << "]";
             result << ";\n";
