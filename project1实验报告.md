@@ -96,7 +96,7 @@ IRVisitor的遍历顺序大致是Move (-> Binary) -> Var (-> Binary) -> Index。
 				for index2 in factor and index2 notin dst
 					if index2 is inbounded then
 						temp_dst[index1] = temp_dst[index1] op factor[index2]
-
+	
 	for index1 in dst
 		if index1 is inbounded then
 			dst[index1] = temp_dst[index1]
@@ -110,9 +110,9 @@ IRVisitor的遍历顺序大致是Move (-> Binary) -> Var (-> Binary) -> Index。
 	// key是Index的name，value是Index，用于存储使用过的ID
 	map<string, Expr> leftIDTable, currentIDTable;
 	// 存储所有dst中使用过的ID
-    set<string> isLeftID;
+	set<string> isLeftID;
 	// 存储factor中下标Expr和范围，用于boundChecker
-    vector<pair<Expr, int> > currentExprBound;
+	vector<pair<Expr, int> > currentExprBound;
 
 ### V. IR to cpp
 
