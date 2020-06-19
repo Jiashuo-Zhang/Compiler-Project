@@ -36,6 +36,7 @@ set(IRPrinter-SRC
   ${CMAKE_CURRENT_SOURCE_DIR}/../src/IRMutator.cc
   ${CMAKE_CURRENT_SOURCE_DIR}/../src/IRPrinter.cc
   ${CMAKE_CURRENT_SOURCE_DIR}/../src/IRVisitor.cc
+  ${CMAKE_CURRENT_SOURCE_DIR}/../src/IRDiffer.cc
 )
 
 set(antlr4-SRC 
