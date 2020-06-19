@@ -20,11 +20,11 @@
 #include "IRMutator.h"
 #include "IRVisitor.h"
 #include "IRPrinter.h"
+#include "IRDiffer.h"
 #include "type.h"
 
 using namespace std;
 
-extern vector<string> grad_to;
 
 int main() {
     stringstream ss;
@@ -35,10 +35,13 @@ int main() {
     string filename;
     string kernel;
 
+    vector<string> grad_to;
+
     Json::Reader reader;
     Json::Value root;
 
     for(int i = 1;i <= 10;++i) {
+        grad_to.clear();
         ss.clear();
         ss << "./kernels/grad_case" << i << ".cc";
         ss >> filename;
@@ -56,7 +59,10 @@ int main() {
         kernel = root["kernel"].asString();
         data_type = root["data_type"].asString();
         name = root["name"].asString();
-        grad_to = root["grad_to"].asString();
+        
+        for(int i = 0;i < root["grad_to"].size();++i) {
+            grad_to.push_back(root["grad_to"][i].asString());
+        }
 
         std::ofstream temp;
         temp.open("input.kernel");
@@ -83,26 +89,41 @@ int main() {
         vector<Stmt> bodyList;
         map<string, vector<size_t> > allTempList;
         IRVisitor visitor;
+        set<string> ins, outs;
+
         for (auto stmt : stmtList) {
-            stmt.visit_stmt(&visitor);
-            for (auto tmp : visitor.boundTable)
-                cout << tmp.first << " [" << tmp.second.first <<  ", " << tmp.second.second << ")" << endl;
-            cout << endl;
-            IRMutator mutator;
-            mutator.boundTable = visitor.boundTable;
-            vector<Stmt> tmp = mutator.mutate(stmt).as<vector<Stmt> >();
-            for (Stmt s : tmp)
-                bodyList.push_back(s);
-            for (auto p : mutator.tempList)
-                allTempList.insert(p);
+            vector<Stmt> newStmtList;
+            for (auto g : grad_to) {
+                IRDiffer differ;
+                differ.grad_to = g;
+                Stmt newStmt = differ.mutate(stmt).as<Stmt>();
+                newStmtList.push_back(newStmt);
+            }
+
+            for (auto newStmt : newStmtList) {
+                newStmt.visit_stmt(&visitor);
+                cout << endl;
+                for (auto in : visitor.in)
+                    ins.insert(in);
+                for (auto out : visitor.out)
+                    outs.insert(out);
+
+                IRMutator mutator;
+                mutator.boundTable = visitor.boundTable;
+                vector<Stmt> tmp = mutator.mutate(newStmt).as<vector<Stmt> >();
+                for (Stmt s : tmp)
+                    bodyList.push_back(s);
+                for (auto p : mutator.tempList)
+                    allTempList.insert(p);
+            }
         }
 
         result << "void " << name << '(';
         bool first = true;
-        set<string> arg_set;
-        for(int i = 0;i < root["ins"].size();++i) {
-            string arg_name = root["ins"][i].asString();
-            arg_set.insert(arg_name);
+
+        cout << endl;
+        for(auto i = ins.begin();i != ins.end();++i) {
+            string arg_name = *i;
             auto shape = visitor.varShapeTable[arg_name];
             if(!first)
                 result << ", ";
@@ -116,10 +137,8 @@ int main() {
                 result << "[" << l << "]";
             } 
         }
-        for(int i = 0;i < root["outs"].size();++i) {
-            string arg_name = root["outs"][i].asString();
-            if(arg_set.count(arg_name))
-                continue;
+        for(auto i = outs.begin();i != outs.end();++i) {
+            string arg_name = *i;
             if(!first)
                 result << ", ";
             first = false;
