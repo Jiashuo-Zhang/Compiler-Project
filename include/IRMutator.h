@@ -43,7 +43,7 @@ class IRMutator {
     antlrcpp::Any mutate(const Expr&);
     antlrcpp::Any mutate(const Stmt&);
     antlrcpp::Any mutate(const Group&);
-
+    virtual ~IRMutator() = default;
     virtual antlrcpp::Any visit(Ref<const IntImm>);
     virtual antlrcpp::Any visit(Ref<const UIntImm>);
     virtual antlrcpp::Any visit(Ref<const FloatImm>);
