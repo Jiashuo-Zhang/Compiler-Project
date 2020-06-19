@@ -7,25 +7,29 @@
 #include "IRMutator.h"
 #include "IRVisitor.h"
 #include "IRPrinter.h"
+#include "IRDiffer.h"
 #include "type.h"
 using namespace std;
 using namespace antlr4;
 using namespace Boost::Internal;
 
-int main(int argc, const char* argv[]) {
+int main(int argc, const char *argv[]) {
     std::ifstream stream;
     stream.open("input.kernel");
     ANTLRInputStream input(stream);
     kernelLexer lexer(&input);
     CommonTokenStream tokens(&lexer);
     kernelParser parser(&tokens);
-    kernelParser::ProgContext* tree = parser.prog();
+    kernelParser::ProgContext *tree = parser.prog();
     //kernel2IRVisitor visitor;
     //antlrcpp::Any p=visitor.visitStart(tree);
     //simpleVisitor visitor;
     //antlrcpp::Any p=visitor.visitStart(tree);
     Kernel2IRVisitor visitor;
     vector<Stmt> stmtList = visitor.visit(tree).as<vector<Stmt> >();
+    vector<string> grad_to;
+    grad_to.push_back("B");
+    grad_to.push_back("C");
     /*vector<Stmt> stmtList;
 
     Type data_type = Type::float_scalar(32);
@@ -69,7 +73,7 @@ int main(int argc, const char* argv[]) {
     Expr dom_w = Dom::make(index_type, 0, W);
     Expr w = Index::make(index_type, "w", dom_w, IndexType::Spatial);
 
-    // index r 
+    // index r
     Expr dom_r = Dom::make(index_type, 0, R);
     Expr r = Index::make(index_type, "r", dom_r, IndexType::Reduce);
 
@@ -101,26 +105,42 @@ int main(int argc, const char* argv[]) {
 
     vector<Stmt> bodyList;
     map<string, vector<size_t> > allTempList;
+    set<string> ins, outs;
     for (auto stmt : stmtList) {
-        IRVisitor visitor;
-        stmt.visit_stmt(&visitor);
-        for (auto tmp : visitor.boundTable)
-            cout << tmp.first << " [" << tmp.second.first <<  ", " << tmp.second.second << ")" << endl;
-        cout << endl;
-        /*for (size_t i = 0; i < visitor.indexTable.size(); ++i) {
-            cout << i << " {";
-            for (auto tmp2 : visitor.indexTable[i])
-                cout << tmp2 << ", ";
-            cout << "$}" << endl;
+        vector<Stmt> newStmtList;
+        for (auto g : grad_to) {
+            IRDiffer differ;
+            differ.grad_to = g;
+            Stmt newStmt = differ.mutate(stmt).as<Stmt>();
+            newStmtList.push_back(newStmt);
         }
-        cout << endl;*/
-        IRMutator mutator;
-        mutator.boundTable = visitor.boundTable;
-        vector<Stmt> tmp = mutator.mutate(stmt).as<vector<Stmt> >();
-        for (Stmt s : tmp)
-            bodyList.push_back(s);
-        for (auto p : mutator.tempList)
-            allTempList.insert(p);
+
+        for (auto newStmt : newStmtList) {
+            IRVisitor visitor;
+            newStmt.visit_stmt(&visitor);
+            for (auto tmp : visitor.boundTable)
+                cout << tmp.first << " [" << tmp.second.first <<  ", " << tmp.second.second << ")" << endl;
+            cout << endl;
+            for (auto in : visitor.in)
+                ins.insert(in);
+            for (auto out : visitor.out)
+                outs.insert(out);
+            /*for (size_t i = 0; i < visitor.indexTable.size(); ++i) {
+                cout << i << " {";
+                for (auto tmp2 : visitor.indexTable[i])
+                    cout << tmp2 << ", ";
+                cout << "$}" << endl;
+            }
+            cout << endl;*/
+
+            IRMutator mutator;
+            mutator.boundTable = visitor.boundTable;
+            vector<Stmt> tmp = mutator.mutate(newStmt).as<vector<Stmt> >();
+            for (Stmt s : tmp)
+                bodyList.push_back(s);
+            for (auto p : mutator.tempList)
+                allTempList.insert(p);
+        }
     }
 
     for (auto p : allTempList) {
@@ -129,6 +149,18 @@ int main(int argc, const char* argv[]) {
             cout << l << ", ";
         cout << "$)" << endl;
     }
+
+    cout << "ins: (";
+    for (auto in : ins) {
+        cout << in << ", ";
+    }
+    cout << "$)" << endl;
+
+    cout << "outs: (";
+    for (auto out : outs) {
+        cout << out << ", ";
+    }
+    cout << "$)" << endl;
 
     for (Stmt s : bodyList) {
         IRPrinter printer;

@@ -1,1 +1,0 @@
-/usr/bin/c++  -std=c++11 -faligned-new -O2 -Wall -fPIC   -rdynamic CMakeFiles/solution.dir/solution/solution.cc.o  -o ../bin/solution  -Wl,-rpath,/home/quack/Code/CompilerProject/kernel/lib:/home/quack/Code/CompilerProject/kernel/libs ../lib/libboost.so ../lib/libkernel.so -ldl ../lib/libjsoncpp.a ../libs/libantlr4-runtime.so 

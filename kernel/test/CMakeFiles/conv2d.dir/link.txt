@@ -1,1 +1,0 @@
-/usr/bin/c++  -std=c++11 -faligned-new -O2 -Wall -fPIC   -rdynamic CMakeFiles/conv2d.dir/conv2d.cc.o  -o ../bin/conv2d  -Wl,-rpath,/home/quack/Code/CompilerProject/kernel/lib:/home/quack/Code/CompilerProject/kernel/libs ../lib/libboost.so ../lib/libkernel.so -ldl ../lib/libjsoncpp.a ../libs/libantlr4-runtime.so 

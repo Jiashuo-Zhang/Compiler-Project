@@ -60,8 +60,9 @@ class IRVisitor {
     virtual void visit(Ref<const Kernel>);
     map<string, pair<int,int> > boundTable;
     map<string, vector<size_t> > varShapeTable;
+    set<string> in, out;
     pair<int,int> currentBound;
-    bool inIndex, isUpdate;
+    bool inIndex, isUpdate, isLeft;
     int imm;
  private:
 };

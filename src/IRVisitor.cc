@@ -173,6 +173,11 @@ void IRVisitor::visit(Ref<const Var> op) { /**/
         isUpdate = true;
         inIndex = false;
     }
+    if (isLeft) {
+        out.insert(op->name);
+    } else {
+        in.insert(op->name);
+    }
     return;
 }
 
@@ -226,7 +231,9 @@ void IRVisitor::visit(Ref<const IfThen> op) {
 
 void IRVisitor::visit(Ref<const Move> op) { /**/
     inIndex = false;
+    isLeft = true;
     (op->dst).visit_expr(this);
+    isLeft = false;
     (op->src).visit_expr(this);
     return;
 }
