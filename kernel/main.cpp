@@ -29,7 +29,6 @@ int main(int argc, const char *argv[]) {
     vector<Stmt> stmtList = visitor.visit(tree).as<vector<Stmt> >();
     vector<string> grad_to;
     grad_to.push_back("B");
-    grad_to.push_back("C");
     /*vector<Stmt> stmtList;
 
     Type data_type = Type::float_scalar(32);

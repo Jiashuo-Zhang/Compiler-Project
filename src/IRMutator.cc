@@ -1,6 +1,6 @@
 /*
  * MIT License
- * 
+ *
  * Copyright (c) 2020 Size Zheng
 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -9,10 +9,10 @@
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- 
+
  * The above copyright notice and this permission notice shall be included in all
  * copies or substantial portions of the Software.
- 
+
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -77,31 +77,38 @@ antlrcpp::Any IRMutator::visit(Ref<const Unary> op) {
             inFactor = true;
             Expr new_a = mutate(op->a).as<Expr>();
             inFactor = false;
-                
+
             vector<Expr> currentID;
             for (auto p : currentIDTable)
                 if (isLeftID.find(p.first) == isLeftID.end())
                     currentID.push_back(p.second);
 
-            Stmt body = Move::make(currentTemp, Binary::make(data_type, type, currentTemp, new_a), MoveType::MemToMem);
+            Stmt assignStmt = Move::make(initTemp, Binary::make(data_type, type, initTemp, new_a), MoveType::MemToMem);
+
+            vector<Stmt> body;
+            body.assign(indexTrans.begin(), indexTrans.end());
+            body.push_back(assignStmt);
 
             size_t len = currentExprBound.size();
             for (size_t i = 0; i < len; ++i) {
                 Expr tmp1 = Compare::make(index_type, CompareOpType::GE, currentExprBound[i].first, Expr(0));
                 Expr tmp2 = Compare::make(index_type, CompareOpType::LT, currentExprBound[i].first, Expr(currentExprBound[i].second));
                 Expr tmp = Binary::make(index_type, BinaryOpType::And, tmp1, tmp2);
-                body = IfThen::make(tmp, {body});
+                Stmt st = IfThen::make(tmp, body);
+                body.clear();
+                body.push_back(st);
             }
 
-            if (currentID.size() > 0)
-                body = LoopNest::make(currentID, {body});
-
+            if (currentID.size() > 0) {
+                Stmt st = LoopNest::make(currentID, body);
+                body.clear();
+                body.push_back(st);
+            }
+                
             currentIDTable.clear();
             currentExprBound.clear();
-                
-            vector<Stmt> res;
-            res.push_back(body);
-            return res;
+
+            return body;
         } else {
             Expr new_a = mutate(op->a);
             return Unary::make(op->type(), op->op_type, new_a);
@@ -143,32 +150,39 @@ antlrcpp::Any IRMutator::visit(Ref<const Binary> op) { /**/
                 Expr new_a = mutate(op->a).as<Expr>();
                 Expr new_b = mutate(op->b).as<Expr>();
                 inFactor = false;
-                
+
                 vector<Expr> currentID;
                 for (auto p : currentIDTable)
                     if (isLeftID.find(p.first) == isLeftID.end())
                         currentID.push_back(p.second);
-                
+
                 Expr bin = Binary::make(op->type(), op->op_type, new_a, new_b);
-                Stmt body = Move::make(currentTemp, Binary::make(data_type, type, currentTemp, bin), MoveType::MemToMem);
+                Stmt assignStmt = Move::make(initTemp, Binary::make(data_type, type, initTemp, bin), MoveType::MemToMem);
+
+                vector<Stmt> body;
+                body.assign(indexTrans.begin(), indexTrans.end());
+                body.push_back(assignStmt);
 
                 size_t len = currentExprBound.size();
                 for (size_t i = 0; i < len; ++i) {
                     Expr tmp1 = Compare::make(index_type, CompareOpType::GE, currentExprBound[i].first, Expr(0));
                     Expr tmp2 = Compare::make(index_type, CompareOpType::LT, currentExprBound[i].first, Expr(currentExprBound[i].second));
                     Expr tmp = Binary::make(index_type, BinaryOpType::And, tmp1, tmp2);
-                    body = IfThen::make(tmp, {body});
+                    Stmt st = IfThen::make(tmp, body);
+                    body.clear();
+                    body.push_back(st);
                 }
 
-                if (currentID.size() > 0)
-                    body = LoopNest::make(currentID, {body});
-
+                if (currentID.size() > 0) {
+                    Stmt st = LoopNest::make(currentID, body);
+                    body.clear();
+                    body.push_back(st);
+                }
+                
                 currentIDTable.clear();
                 currentExprBound.clear();
-                
-                vector<Stmt> res;
-                res.push_back(body);
-                return res;
+
+                return body;
             }
         } else {
             Expr new_a = mutate(op->a).as<Expr>();
@@ -237,30 +251,50 @@ antlrcpp::Any IRMutator::visit(Ref<const Var> op) { /**/
         string tempName = "temp_" + op->name;
         currentTemp = Var::make(op->type(), tempName, new_args, op->shape);
         tempList.insert(make_pair(tempName, op->shape));
+        for (size_t i = 0; i < op->args.size(); ++i) {
+            Expr dom = Dom::make(index_type, 0, Expr(op->shape[i]));
+            string s = "id" + to_string(i);
+            Expr id = Index::make(index_type, s, dom, IndexType::Spatial);
+            Stmt st = Move::make(id, new_args[i], MoveType::LocalToLocal);
+            indexTrans.push_back(st);
+            vector<size_t> vv;
+            vv.push_back(1);
+            tempList.insert(make_pair(s, vv));
+            initID.push_back(id);
+        }
+        initTemp = Var::make(op->type(), tempName, initID, op->shape);
+        initOut = Var::make(op->type(), op->name, initID, op->shape);
         return Var::make(op->type(), op->name, new_args, op->shape);
     } else {
         if (!inFactor) {
             Expr var = Var::make(op->type(), op->name, new_args, op->shape);
-            Expr bin = Binary::make(data_type, type, currentTemp, var);
-            Stmt body = Move::make(currentTemp, bin, MoveType::MemToMem);
+            Expr bin = Binary::make(data_type, type, initTemp, var);
+            vector<Stmt> body;
+            body.assign(indexTrans.begin(), indexTrans.end());
+            Stmt assignStmt = Move::make(initTemp, bin, MoveType::MemToMem);
+            body.push_back(assignStmt);
             size_t len = currentExprBound.size();
             for (size_t i = 0; i < len; ++i) {
                 Expr tmp1 = Compare::make(index_type, CompareOpType::GE, currentExprBound[i].first, Expr(0));
                 Expr tmp2 = Compare::make(index_type, CompareOpType::LT, currentExprBound[i].first, Expr(currentExprBound[i].second));
                 Expr tmp = Binary::make(index_type, BinaryOpType::And, tmp1, tmp2);
-                body = IfThen::make(tmp, {body});
+                Stmt st = IfThen::make(tmp, body);
+                body.clear();
+                body.push_back(st);
             }
             vector<Expr> currentID;
             for (auto p : currentIDTable)
                 if (isLeftID.find(p.first) == isLeftID.end())
                     currentID.push_back(p.second);
-            if (currentID.size() > 0)
-                body = LoopNest::make(currentID, {body});
+            if (currentID.size() > 0) {
+                Stmt st = LoopNest::make(currentID, body);
+                body.clear();
+                body.push_back(st);
+            }
+                
             currentIDTable.clear();
             currentExprBound.clear();
-            vector<Stmt> vec;
-            vec.push_back(body);
-            return vec;
+            return body;
         }
         return Var::make(op->type(), op->name, new_args, op->shape);
     }
@@ -325,34 +359,34 @@ antlrcpp::Any IRMutator::visit(Ref<const Move> op) { /**/
     vector<pair<Expr, int> > vec;
     vec.assign(currentExprBound.begin(), currentExprBound.end());
     currentExprBound.clear();
-    Stmt init = Move::make(currentTemp, Expr(0), op->move_type);
+    Stmt init = Move::make(initTemp, Expr(0), op->move_type);
 
     inFactor = false;
     vector<Stmt> bodyList = mutate(op->src).as<vector<Stmt> >();
-    bodyList.insert(bodyList.begin(), init);
-    Stmt loadAtIndex = Move::make(new_dst, currentTemp, op->move_type);
+    Stmt loadAtIndex = Move::make(initOut, initTemp, op->move_type);
 
     size_t len = vec.size();
     Expr cond1 = Compare::make(index_type, CompareOpType::GE, vec[0].first, Expr(0));
     Expr cond2 = Compare::make(index_type, CompareOpType::LT, vec[0].first, Expr(vec[0].second));
     Expr cond = Binary::make(index_type, BinaryOpType::And, cond1, cond2);
     Stmt boundedBody = IfThen::make(cond, bodyList);
-    loadAtIndex = IfThen::make(cond, {loadAtIndex});
 
     for (size_t i = 1; i < len; ++i) {
         Expr tmp1 = Compare::make(index_type, CompareOpType::GE, vec[i].first, Expr(0));
         Expr tmp2 = Compare::make(index_type, CompareOpType::LT, vec[i].first, Expr(vec[i].second));
         Expr tmp = Binary::make(index_type, BinaryOpType::And, tmp1, tmp2);
         boundedBody = IfThen::make(tmp, {boundedBody});
-        loadAtIndex = IfThen::make(tmp, {loadAtIndex});
     }
 
     Stmt store = LoopNest::make(leftID, {boundedBody});
-    Stmt load = LoopNest::make(leftID, {loadAtIndex});
+    Stmt initStmt = LoopNest::make(initID, {init});
+    Stmt loadStmt = LoopNest::make(initID, {loadAtIndex});
 
     vector<Stmt> stmtList;
+    stmtList.push_back(initStmt);
     stmtList.push_back(store);
-    stmtList.push_back(load);
+    stmtList.push_back(loadStmt);
+
     return stmtList;
 }
 
