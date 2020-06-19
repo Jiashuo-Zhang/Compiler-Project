@@ -156,6 +156,10 @@ int main() {
 
         for (auto p : allTempList) {
             result << " " << data_type << " " << p.first;
+            if(p.second.size() == 1 && p.second[0] == 1) {
+                result << ";\n";
+                continue;
+            }
             for (size_t l : p.second)
                 result << "[" << l << "]";
             result << ";\n";
