@@ -23,9 +23,21 @@ make -j 12
 
 在传统的深度学习框架求导中，求导通常通过以计算图为基础，利用链式法则反向传播求导。每次计算时需要依赖预先定义的算子来计算反向计算导数，这限制了深度学习框架的可扩展性。事实上，不管是何种算子，最终都会通过带有最基础的加减乘除运算的数学表达式实现，因此，在IR层，通过对于最底层加减乘除运算的求导，我们就可以直接得到计算相应导数的代码。
 
-每一个kernel中的stmt，都会翻译成若干层循环中的一条赋值语句。在前向传播中，我们通过这条语句来计算张量中每一个元素的值。在求导时，通过对该赋值语句求导即可得到求导代码。以case1为例，其kernel为：$C<4, 16>[i, j] = A<4, 16>[i, j] * B<4, 16>[i, j] + 1.0;$ 将其翻译为C后，其核心赋值语句即为C[i,j]=A[i,j]*B[i,j]+1.0，对该等式进行求导，即知$\frac{\partial C[i,j]}{\partial A[i,j]}=B[i,j]$。
+每一个kernel中的stmt，都会翻译成若干层循环中的一条赋值语句。在前向传播中，我们通过这条语句来计算张量中每一个元素的值。在求导时，通过对该赋值语句求导即可得到求导代码。一般的说，对于$Output = expr(Input_1, Input_2, ..., Input_n)$（1），根据链式法则有，$dInput_i = \frac{\partial loss}{\partial Input_i}=\frac{\partial loss}{\partial Output} \cdot \frac{\partial Output}{\partial Input_i}$，对（1）两边求导，即有$dInput_i = \frac{\partial loss}{\partial Input_i}=\frac{\partial loss}{\partial Output} \cdot \frac{\partial expr}{\partial Input_i}$，而在IR中，expr中的计算都为简单的加减乘除运算，直接使用最为基础的加减乘除求导法则即可得到$\frac{\partial expr}{\partial Input_i}$，进而完成自动求导的功能。
 
-更一般的说，对于$Output = expr(Input_1, Input_2, ..., Input_n)$（1），根据链式法则有，$dInput_i = \frac{\partial loss}{\partial Input_i}=\frac{\partial loss}{\partial Output} \cdot \frac{\partial Output}{\partial Input_i}$，对（1）两边求导，即有$dInput_i = \frac{\partial loss}{\partial Input_i}=\frac{\partial loss}{\partial Output} \cdot \frac{\partial expr}{\partial Input_i}$，而在IR中，expr中的计算都为简单的加减乘除运算，直接使用最为基础的加减乘除求导法则即可得到$\frac{\partial expr}{\partial Input_i}$，进而完成自动求导的功能。
+### 自动求导实例
+
+以case1为例，其kernel为：$C<4, 16>[i, j] = A<4, 16>[i, j] * B<4, 16>[i, j] + 1.0;$ 将其翻译为IR后，其核心赋值语句即为C[i,j]=A[i,j]*B[i,j]+1.0，对该等式进行求导，即知$\frac{\partial C[i,j]}{\partial A[i,j]}=B[i,j]$。由上述推导知，$dA=dC\cdot \frac{\partial C[i,j]}{\partial A[i,j]}=dC\cdot B[i,j]$。因此，生成的计算导数的代码应形如：
+
+```c++
+for (int i = 0; i < 4; ++i) {
+        for (int j = 0; j < 16; ++j) {
+            dA[i][j] = dC[i][j] * B[i][j];
+        }
+    }
+```
+
+
 
 ## 实现流程
 
