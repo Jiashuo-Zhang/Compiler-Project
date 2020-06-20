@@ -37,8 +37,6 @@ for (int i = 0; i < 4; ++i) {
     }
 ```
 
-
-
 ## 实现流程
 
 本实验利用了project1中的代码来构建IR语法树。具体逻辑为输入kernel字符串，通过词法、语法分析，构建出kernel的抽象语法树（借助antlr完成），在遍历语法树的过程中初步构建IR抽象语法树。这一部分大致流程如下：
@@ -56,7 +54,7 @@ for (int i = 0; i < 4; ++i) {
 
 ```
 
-之后，通过IRDiffer对各个stmt进行求导,求导完成后，使用project1中实现的IRvisitor来推断每一个index的范围，通过lRmutator来组装外层循环，完成完整的求导后的IR抽象语法树的构造。
+之后，通过IRDiffer对各个stmt进行求导（IRDiffer继承自IRMutator），求导完成后，使用project1中实现的IRvisitor来推断每一个index的范围，通过lRmutator来组装外层循环，完成完整的求导后的IR抽象语法树的构造。
 
 ```c++
 				vector<Stmt> bodyList;
@@ -152,6 +150,9 @@ for (int i = 0; i < 4; ++i) {
         result.close();
     }
 ```
+
+### 自动求导代码实现
+IRDiffer的输入是一个赋值的Stmt和一个要对其求导的变量名g，输出是一个求导后的表达式。在Move节点，对于dst成员，我们可以处理出$\frac{\partial loss}{\partial Output}$（即dOutput）。对于src成员，我们递归地mutate，遍历顺序大致是Move (-> Binary) -> Var (-> Binary) -> Index。在Binary节点，判断一下是否是Index的运算，如果不是，就说明是Var之间的运算。如果是Var之间的运算，如果运算符是加减法，那么就对两个运算数分别求导再组合。如果运算符是乘法，那么根据链式法则求导。这样递归地求导，总会到Var或者Imm。对于每个Var，如果这个Var的名字是g，那么应该返回1，否则应该返回0，对于每个Imm，返回0。考虑到最后还要乘上$\frac{\partial loss}{\partial Output}$（即dOutput），因此实现中没有直接返回1，而是返回前面处理出来的dOutput，并且注意到最后的求导表达式的dst应是dg，所以也要处理出来保存。对于返回0的情形，要对整个表达式化简，例如在Binary节点，运算是加法的情形，对a+b求导，那么应该返回a的导数+b的导数，为了把0清除掉，当a的导数和b的导数都是0的时候，返回0；当a的导数非0，b的导数为0的时候，返回a的导数；当a的导数为0，b的导数非0的时候，返回b的导数；当a的导数和b的导数都不是0的时候，才返回a的导数+b的导数。对其他的运算或节点也有类似的逻辑。这样可以在生成的求导表达式中清除掉所有的0。
 
 ## 实验结果
 
