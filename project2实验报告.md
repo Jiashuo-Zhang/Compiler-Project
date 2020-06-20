@@ -155,7 +155,7 @@ for (int i = 0; i < 4; ++i) {
 
 ## 实验结果
 
-
+![result](.\result.png)
 
 ## 实现中的编译原理
 
