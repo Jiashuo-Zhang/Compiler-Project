@@ -157,7 +157,7 @@ for (int i = 0; i < 4; ++i) {
 
 由于时间与精力限制，我们组放弃了对于case10中复杂下标的处理，通过了9/10的测试用例。
 
-![result](.\project2/result.png)
+![result](https://github.com/Jiashuo-Zhang/Compiler-Project/blob/master/project2/result.png)
 
 ## 实现中的编译原理
 

@@ -95,7 +95,7 @@ for (int i = 0; i < 4; ++i) {
 最后，生成函数签名和打印代码，完成求导流程:
 
 ```c++
- result << "void " << name << '(';
+ 				result << "void " << name << '(';
         bool first = true;
 
         cout << endl;
@@ -157,7 +157,7 @@ for (int i = 0; i < 4; ++i) {
 
 由于时间与精力限制，我们组放弃了对于case10中复杂下标的处理，通过了9/10的测试用例。
 
-![result](.\result.png)
+![result](https://github.com/Jiashuo-Zhang/Compiler-Project/blob/master/project2/result.png)
 ## 实现中的编译原理
 
 * 词法分析。 实验中使用的词法分析为antlr工具自动生成的词法分析器，通过编写文法与词法文件，可以指导antlr自动生成语法分析器。
