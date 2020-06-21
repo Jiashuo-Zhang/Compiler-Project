@@ -164,7 +164,7 @@ IRDiffer的输入是一个赋值的Stmt和一个要对其求导的变量名g，�
 
 ![result](https://github.com/Jiashuo-Zhang/Compiler-Project/blob/master/result.png)
 
-## 实现中的编译原理
+## 实现中的编译原理 
 
 * 词法分析。 实验中使用的词法分析为antlr工具自动生成的词法分析器，通过编写文法与词法文件，可以指导antlr自动生成语法分析器。
 * 语法分析。kernel的语法分析器是由antlr自动生成的，其与Yacc不同，采用LL(k)的语法分析，使用该语法分析器可以直接的到kernel的语法分析树，通过遍历该语法分析树可以完成后续工作。
