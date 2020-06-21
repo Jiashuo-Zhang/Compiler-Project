@@ -95,7 +95,7 @@ for (int i = 0; i < 4; ++i) {
 最后，生成函数签名和打印代码，完成求导流程:
 
 ```c++
- result << "void " << name << '(';
+   			result << "void " << name << '(';
         bool first = true;
 
         cout << endl;
